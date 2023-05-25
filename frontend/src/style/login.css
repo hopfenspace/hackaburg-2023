@@ -1,0 +1,17 @@
+.login-container {
+    display: flex;
+    flex-direction: column;
+    justify-items: center;
+    align-items: center;
+}
+
+.login-form {
+    display: contents;
+}
+.login-form > div {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+}
+.login-form > div > label {
+    display: contents;
+}

@@ -1,0 +1,16 @@
+.header {
+    background-color: green;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.header > div:first-child {
+    flex-grow: 1;
+}
+.header > div {
+    cursor: pointer;
+    padding: 0.5em;
+}
+.header > div:hover {
+    background-color: darkgreen;
+}
