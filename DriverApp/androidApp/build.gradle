@@ -1,0 +1,72 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'com.mapbox.maps.token'
+
+android {
+    namespace "org.hopfenspace.hackaburg2023.driverapp.android"
+    compileSdkVersion 33
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+                targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        applicationId "org.hopfenspace.hackaburg2023.driverapp.android"
+        minSdkVersion 27
+        targetSdkVersion 33
+        versionCode 1
+        versionName "1.0"
+        vectorDrawables.useSupportLibrary = true
+    }
+
+    buildTypes {
+        debug {
+            testCoverageEnabled = false
+            manifestPlaceholders = [enableCrashReporting: "false"]
+        }
+        release {
+            minifyEnabled true
+            manifestPlaceholders = [enableCrashReporting: "true"]
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion "1.4.4"
+    }
+}
+
+dependencies {
+    implementation project(":shared")
+    implementation "androidx.compose.ui:ui:1.4.3"
+    implementation "androidx.compose.ui:ui-tooling:1.4.3"
+    implementation "androidx.compose.ui:ui-tooling-preview:1.4.3"
+    implementation "androidx.compose.foundation:foundation:1.4.3"
+    implementation "androidx.compose.material:material:1.4.3"
+    implementation "androidx.activity:activity-compose:1.7.2"
+    implementation "com.mapbox.maps:android:10.13.0"
+
+    // Mapbox Navigation SDK
+    implementation "com.mapbox.navigation:android:2.10.1"
+    implementation "com.mapbox.navigation:ui-dropin:2.10.1"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21"
+    implementation "androidx.core:core-ktx:1.10.1"
+    implementation "com.google.android.material:material:1.9.0"
+    //implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
+    //implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
+    implementation "androidx.appcompat:appcompat:1.6.1"
+    //implementation "androidx.cardview:cardview:1.0.0"
+    implementation "androidx.constraintlayout:constraintlayout:2.1.4"
+    //implementation "com.google.android.gms:play-services-location:20.0.0"
+    //implementation "com.squareup.leakcanary:leakcanary-android:2.9.1"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
+}
