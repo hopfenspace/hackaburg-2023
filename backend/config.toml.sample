@@ -1,0 +1,27 @@
+[Server]
+ListenAddress = "127.0.0.1"
+ListenPort = 8080
+SecretKey = "GupggnCDzPWc5x6g/gBmirp/xwuunT6Vc+4UAOWEGSnS67Yo9sKDbXPpczMeVcPVRtJ0xZY8YtL8YOs0ZHFfUQ=="
+
+[Database]
+# Only used by rorm-cli
+Driver = "Postgres"
+Host = "127.0.0.1"
+Port = 5432
+User = "hackaburg"
+Password = "hackaburg"
+Name = "hackaburg"
+
+[Logging]
+LogLevel = "debug"
+Path = "logs/main.log"
+RotationFileSize = "10 MB"
+MaxRotationCount = 10
+
+[[Logging.AdditionalFileLoggers]]
+Name = "requests"
+AddToMainLogger = true
+Path = "logs/requests.log"
+RotationFileSize = "10 MB"
+MaxRotationCount = 5
+AlternativePattern = "{h([{d(%Y-%m-%d %H:%M:%S)} | {({l}):5.5}])} {m}{n}"

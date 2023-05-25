@@ -1,5 +1,7 @@
 //! This module holds the handler of runciv
 
+pub mod search;
+
 use std::fmt::{Display, Formatter};
 
 use actix_toolbox::tb_middleware::actix_session;
