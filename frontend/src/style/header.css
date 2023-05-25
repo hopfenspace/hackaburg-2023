@@ -14,3 +14,23 @@
 .header > div:hover {
     background-color: darkgreen;
 }
+
+.lang-select {
+    --width: 2em;
+    width: var(--width);
+    height: var(--width);
+    clip-path: circle(calc(var(--width) / 2));
+}
+.lang-select > div {
+    height: 33%;
+    width: 100%;
+}
+.lang-select > div:nth-child(1) {
+    background-color: black;
+}
+.lang-select > div:nth-child(2) {
+    background-color: red;
+}
+.lang-select > div:nth-child(3) {
+    background-color: yellow;
+}

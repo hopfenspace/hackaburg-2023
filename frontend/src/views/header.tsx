@@ -2,7 +2,6 @@ import { ROUTES } from "../routes";
 import { USER_CONTEXT } from "../utils/user";
 import React from "react";
 import "../style/header.css";
-import LangSelect from "../components/lang";
 import USER_SVG from "../assets/user.svg";
 import CART_SVG from "../assets/cart.svg";
 
@@ -21,12 +20,22 @@ export default function Header(props: HeaderProps) {
                     <img className="icon" src={USER_SVG} alt="Login" /> {user.username}
                 </div>
             )}
-            <div>
+            <div {...ROUTES.CART.clickHandler({})}>
                 <img className="icon" src={CART_SVG} alt="Cart" />
             </div>
             <div>
                 <LangSelect />
             </div>
+        </div>
+    );
+}
+
+function LangSelect() {
+    return (
+        <div className="lang-select">
+            <div />
+            <div />
+            <div />
         </div>
     );
 }

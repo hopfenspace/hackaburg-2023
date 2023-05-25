@@ -64,7 +64,7 @@ function RegisterForm(props: RegisterFormProps) {
                 props.onSubmit(username, email, password);
             }}
         >
-            <h1>Register</h1>
+            <h1>Registrierung</h1>
             <div>
                 <label>
                     Username: <Input value={username} onChange={setUsername} />
@@ -77,7 +77,7 @@ function RegisterForm(props: RegisterFormProps) {
                 </label>
             </div>
             <button type="submit" className="button">
-                Register
+                Registrieren
             </button>
         </form>
     );
