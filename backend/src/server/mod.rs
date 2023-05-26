@@ -13,12 +13,12 @@ use rorm::Database;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
-use self::handler::product::{create_product, get_product_images};
-use self::handler::search::post_search;
-use self::handler::shop::post_shop;
 use crate::config::Config;
 use crate::server::handler::cart::{get_cart, put_cart};
-use crate::server::handler::product::get_product;
+use crate::server::handler::driver::get_waypoints;
+use crate::server::handler::product::{create_product, get_product, get_product_images};
+use crate::server::handler::search::post_search;
+use crate::server::handler::shop::create_shop;
 use crate::server::handler::{login, logout};
 use crate::server::middleware::{handle_not_found, json_extractor_error};
 use crate::server::swagger::ApiDoc;
@@ -60,9 +60,11 @@ pub(crate) async fn start_server(db: Database, config: &Config) -> Result<(), St
                     .service(create_product)
                     .service(get_product)
                     .service(get_product_images)
+                    .service(create_shop)
                     .service(get_cart)
                     .service(put_cart)
-                    .service(post_shop),
+                    .service(get_waypoints)
+                    .service(create_shop),
             )
     })
     .bind((

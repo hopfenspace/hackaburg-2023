@@ -15,6 +15,7 @@ pub use crate::server::handler::auth::*;
 
 pub mod auth;
 pub mod cart;
+pub mod driver;
 pub mod product;
 pub mod search;
 pub mod shop;

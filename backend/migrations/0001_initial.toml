@@ -1,7 +1,46 @@
 [Migration]
-Hash = '5108986682721380502'
+Hash = '14994033215783529578'
 Initial = true
 Replaces = []
+
+[[Migration.Operations]]
+Type = 'CreateModel'
+Name = 'driver'
+
+[[Migration.Operations.Fields]]
+Name = 'id'
+Type = 'varbinary'
+
+[[Migration.Operations.Fields.Annotations]]
+Type = 'primary_key'
+
+[[Migration.Operations]]
+Type = 'CreateModel'
+Name = 'routenode'
+
+[[Migration.Operations.Fields]]
+Name = 'id'
+Type = 'int64'
+
+[[Migration.Operations.Fields.Annotations]]
+Type = 'auto_increment'
+
+[[Migration.Operations.Fields.Annotations]]
+Type = 'primary_key'
+
+[[Migration.Operations.Fields]]
+Name = 'index'
+Type = 'int64'
+
+[[Migration.Operations.Fields.Annotations]]
+Type = 'not_null'
+
+[[Migration.Operations.Fields]]
+Name = 'arrival'
+Type = 'datetime'
+
+[[Migration.Operations.Fields.Annotations]]
+Type = 'not_null'
 
 [[Migration.Operations]]
 Type = 'CreateModel'
@@ -240,6 +279,31 @@ Value = [
 Type = 'not_null'
 
 [[Migration.Operations.Fields]]
+Name = 'address'
+Type = 'varchar'
+
+[[Migration.Operations.Fields.Annotations]]
+Type = 'max_length'
+Value = 255
+
+[[Migration.Operations.Fields.Annotations]]
+Type = 'not_null'
+
+[[Migration.Operations.Fields]]
+Name = 'lat'
+Type = 'double_number'
+
+[[Migration.Operations.Fields.Annotations]]
+Type = 'not_null'
+
+[[Migration.Operations.Fields]]
+Name = 'lng'
+Type = 'double_number'
+
+[[Migration.Operations.Fields.Annotations]]
+Type = 'not_null'
+
+[[Migration.Operations.Fields]]
 Name = 'created_at'
 Type = 'datetime'
 
@@ -315,6 +379,46 @@ TableName = 'product'
 ColumnName = 'uuid'
 OnDelete = 'Cascade'
 OnUpdate = 'Cascade'
+
+[[Migration.Operations.Field.Annotations]]
+Type = 'not_null'
+
+[[Migration.Operations]]
+Type = 'CreateField'
+Model = 'routenode'
+
+[Migration.Operations.Field]
+Name = 'driver'
+Type = 'varbinary'
+
+[[Migration.Operations.Field.Annotations]]
+Type = 'foreign_key'
+
+[Migration.Operations.Field.Annotations.Value]
+TableName = 'driver'
+ColumnName = 'id'
+OnDelete = 'Restrict'
+OnUpdate = 'Restrict'
+
+[[Migration.Operations.Field.Annotations]]
+Type = 'not_null'
+
+[[Migration.Operations]]
+Type = 'CreateField'
+Model = 'routenode'
+
+[Migration.Operations.Field]
+Name = 'shop'
+Type = 'varbinary'
+
+[[Migration.Operations.Field.Annotations]]
+Type = 'foreign_key'
+
+[Migration.Operations.Field.Annotations.Value]
+TableName = 'shop'
+ColumnName = 'uuid'
+OnDelete = 'Restrict'
+OnUpdate = 'Restrict'
 
 [[Migration.Operations.Field.Annotations]]
 Type = 'not_null'
