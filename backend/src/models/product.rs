@@ -58,11 +58,11 @@ pub struct Product {
 
     /// Product item display name
     #[rorm(max_length = 512)]
-    pub description: String,
+    pub description: Option<String>,
 
     /// Product item image URL
     #[rorm(max_length = 512)]
-    pub image: String,
+    pub image: Option<String>,
 
     /// Most specific product category
     #[rorm(max_length = 64)]
@@ -80,7 +80,7 @@ pub struct ProductInsert {
     pub ean_code: Option<String>,
     pub name: String,
     pub quantity: Option<String>,
-    pub description: String,
-    pub image: String,
+    pub description: Option<String>,
+    pub image: Option<String>,
     pub main_category: String,
 }

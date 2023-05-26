@@ -1,6 +1,7 @@
 //! This module holds the handler of runciv
 
 pub mod search;
+pub mod product;
 
 use std::fmt::{Display, Formatter};
 
@@ -35,8 +36,9 @@ pub(crate) enum ApiStatusCode {
     InvalidContentType = 1002,
     InvalidJson = 1003,
     PayloadOverflow = 1004,
+    MalformedInput = 1005,
 
-    LoginFailed = 1005,
+    LoginFailed = 1006,
 
     InternalServerError = 2000,
     DatabaseError = 2001,
@@ -73,6 +75,8 @@ pub enum ApiError {
     NotFound,
     /// Invalid content type sent
     InvalidContentType,
+    /// The input was not in the expected format
+    MalformedInput,
     /// Json error
     InvalidJson(serde_json::Error),
     /// Payload overflow
@@ -106,6 +110,7 @@ impl Display for ApiError {
                 write!(f, "The resource was not found")
             }
             ApiError::InvalidContentType => write!(f, "Content type error"),
+            ApiError::MalformedInput => write!(f, "Malformed input"),
             ApiError::InvalidJson(err) => write!(f, "Json error: {err}"),
             ApiError::PayloadOverflow(err) => write!(f, "{err}"),
             ApiError::SessionInsert(_) | ApiError::SessionGet(_) => {
@@ -180,6 +185,10 @@ impl actix_web::ResponseError for ApiError {
             }
             ApiError::InvalidContentType => HttpResponse::BadRequest().json(ApiErrorResponse::new(
                 ApiStatusCode::InvalidContentType,
+                self.to_string(),
+            )),
+            ApiError::MalformedInput => HttpResponse::BadRequest().json(ApiErrorResponse::new(
+                ApiStatusCode::MalformedInput,
                 self.to_string(),
             )),
             ApiError::InvalidJson(err) => {

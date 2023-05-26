@@ -22,12 +22,13 @@ impl Modify for CookieSecurity {
 #[derive(OpenApi)]
 #[openapi(paths(
     handler::search::post_search,
+    handler::product::get_product_images,
 ), components(schemas(
     handler::ApiStatusCode,
     handler::ApiErrorResponse,
     handler::search::SearchInput,
     handler::search::SearchOutput,
     handler::search::SearchResult,
-    handler::search::PostProductRequest,
+    handler::product::ProductImages,
 )), modifiers(&CookieSecurity))]
 pub struct ApiDoc;
