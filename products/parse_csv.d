@@ -44,6 +44,17 @@ string translateTag(string tag)
 
 void main(string[] args)
 {
+	foreach (file; args[1 .. $])
+	{
+		writeln(file);
+		work(file);
+	}
+
+	writeln("Done ", args.length - 1, " files");
+}
+
+void work(string file)
+{
 	struct Data
 	{
 		string code;
@@ -79,7 +90,7 @@ void main(string[] args)
 
 	bool inString, acceptQuote;
 	string[] line = [""];
-	foreach (char c; readText(args[1]))
+	foreach (char c; readText(file))
 	{
 		if (inString)
 		{
@@ -133,9 +144,11 @@ void main(string[] args)
 		auto j = [
 			"name": JSONValue(item.product_name_de),
 			"main_category": JSONValue(item.categories_tags.length ? item.categories_tags[$ - 1] : "all"),
-			"description": JSONValue(item.ingredients_text_de),
-			"image": JSONValue(item.image),
 		];
+		if (item.image.length)
+			j["image"] = JSONValue(item.image);
+		if (item.ingredients_text_de.length)
+			j["description"] = JSONValue(item.ingredients_text_de);
 		if (item.code.length)
 			j["ean_code"] = JSONValue(item.code);
 		if (item.quantity.length)
@@ -144,5 +157,5 @@ void main(string[] args)
 	}
 
 	import std.file : write;
-	write(args[1] ~ ".json", JSONValue(json).toString);
+	write(file ~ ".json", JSONValue(json).toString);
 }

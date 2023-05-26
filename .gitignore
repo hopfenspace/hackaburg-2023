@@ -7,4 +7,5 @@
 target/
 
 backend/config.toml
+backend/image_cache
 

@@ -1,8 +1,9 @@
 use std::fs::File;
-use std::io::Write;
+use std::io::{Cursor, Write};
 
 use actix_web::web::{Data, Json, Path};
 use actix_web::{get, post};
+use log::info;
 use rorm::{insert, query, update, Database, Model};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
@@ -121,11 +122,12 @@ async fn download_ean_image(ean: String) -> Option<String> {
         .send()
         .await
         .ok()?
-        .text()
+        .bytes()
         .await
         .ok()?;
     let mut out = File::create(format!("image_cache/{ean}.jpg")).expect("failed to create file");
-    out.write_all(image_response_string.as_bytes()).ok()?;
+    let mut content = Cursor::new(image_response_string);
+    std::io::copy(&mut content, &mut out).ok()?;
 
     Some(format!("image_cache/{ean}.jpg"))
 }
