@@ -49,10 +49,10 @@ pub async fn post_search(
 ) -> ApiResult<Json<SearchOutput>> {
     let binds = [rorm_sql::value::Value::String(&input.q)];
 
-    db.raw_sql("SELECT name, quantity, description, image, main_category, ts_rank_cd(textsearchable_index_col, query) AS rank
+    db.raw_sql("SELECT name, quantity, description, image, main_category, ts_rank_cd(textsearchable_index_col, query, 32 /* rank/(rank+1) */) AS rank
         FROM product, websearch_to_tsquery('german', $1) query
         WHERE query @@ textsearchable_index_col
-        ORDER BY rank DESC
+        ORDER BY COUNT(name) OVER(PARTITION BY main_category) DESC, rank DESC
         LIMIT 1000;", Some(binds.as_slice()), None)
         .await
         .map(|r| Json(SearchOutput {
