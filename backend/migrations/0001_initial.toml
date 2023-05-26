@@ -1,5 +1,5 @@
 [Migration]
-Hash = "17841018649570727239"
+Hash = "8083596757627196731"
 Initial = true
 Replaces = []
 
@@ -55,9 +55,6 @@ Type = "varchar"
 Type = "max_length"
 Value = 512
 
-[[Migration.Operations.Fields.Annotations]]
-Type = "not_null"
-
 [[Migration.Operations.Fields]]
 Name = "image"
 Type = "varchar"
@@ -65,9 +62,6 @@ Type = "varchar"
 [[Migration.Operations.Fields.Annotations]]
 Type = "max_length"
 Value = 512
-
-[[Migration.Operations.Fields.Annotations]]
-Type = "not_null"
 
 [[Migration.Operations.Fields]]
 Name = "main_category"
@@ -200,13 +194,6 @@ Type = "varchar"
 [[Migration.Operations.Fields.Annotations]]
 Type = "max_length"
 Value = 1024
-
-[[Migration.Operations.Fields.Annotations]]
-Type = "not_null"
-
-[[Migration.Operations.Fields]]
-Name = "admin"
-Type = "boolean"
 
 [[Migration.Operations.Fields.Annotations]]
 Type = "not_null"
