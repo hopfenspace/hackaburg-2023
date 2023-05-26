@@ -17,7 +17,7 @@ use crate::config::Config;
 use crate::server::middleware::{handle_not_found, json_extractor_error};
 use crate::server::swagger::ApiDoc;
 
-use self::handler::search::post_search;
+use self::handler::search::{post_search, post_product};
 
 mod handler;
 pub mod middleware;
@@ -50,6 +50,7 @@ pub(crate) async fn start_server(db: Database, config: &Config) -> Result<(), St
             .wrap(ErrorHandlers::new().handler(StatusCode::NOT_FOUND, handle_not_found))
             .service(SwaggerUi::new("/docs/{_:.*}").url("/api-doc/openapi.json", ApiDoc::openapi()))
             .service(post_search)
+            .service(post_product)
     })
     .bind((
         config.server.listen_address.as_str(),

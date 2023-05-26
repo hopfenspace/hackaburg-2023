@@ -50,6 +50,7 @@ futures = { version = "~0.3" }
 
 # ORM
 rorm = { version = "~0.5", features = ["tokio-rustls", "cli", "uuid"] }
+rorm-sql = { version = "*" }
 
 # Utilities for RNG
 rand = { version = "~0.8" }

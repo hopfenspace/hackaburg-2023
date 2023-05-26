@@ -4,3 +4,6 @@
 .models.json
 
 target/
+
+backend/config.toml
+

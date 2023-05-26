@@ -1,5 +1,5 @@
 pub use user::*;
 
-mod user;
-mod shop;
-mod product;
+pub mod user;
+pub mod shop;
+pub mod product;

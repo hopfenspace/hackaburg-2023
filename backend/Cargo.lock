@@ -502,6 +502,7 @@ dependencies = [
  "log",
  "rand",
  "rorm",
+ "rorm-sql",
  "rpassword",
  "serde",
  "serde_json",

@@ -1,0 +1,275 @@
+[Migration]
+Hash = "17841018649570727239"
+Initial = true
+Replaces = []
+
+[[Migration.Operations]]
+Type = "CreateModel"
+Name = "product"
+
+[[Migration.Operations.Fields]]
+Name = "uuid"
+Type = "varbinary"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "primary_key"
+
+[[Migration.Operations.Fields]]
+Name = "ean_code"
+Type = "varchar"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "index"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "max_length"
+Value = 13
+
+[[Migration.Operations.Fields]]
+Name = "name"
+Type = "varchar"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "index"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "max_length"
+Value = 255
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "not_null"
+
+[[Migration.Operations.Fields]]
+Name = "quantity"
+Type = "varchar"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "max_length"
+Value = 64
+
+[[Migration.Operations.Fields]]
+Name = "description"
+Type = "varchar"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "max_length"
+Value = 512
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "not_null"
+
+[[Migration.Operations.Fields]]
+Name = "image"
+Type = "varchar"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "max_length"
+Value = 512
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "not_null"
+
+[[Migration.Operations.Fields]]
+Name = "main_category"
+Type = "varchar"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "max_length"
+Value = 64
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "not_null"
+
+[[Migration.Operations.Fields]]
+Name = "created_at"
+Type = "datetime"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "auto_create_time"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "not_null"
+
+[[Migration.Operations]]
+Type = "CreateModel"
+Name = "shop"
+
+[[Migration.Operations.Fields]]
+Name = "uuid"
+Type = "varbinary"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "primary_key"
+
+[[Migration.Operations.Fields]]
+Name = "name"
+Type = "varchar"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "index"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "max_length"
+Value = 255
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "unique"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "not_null"
+
+[[Migration.Operations.Fields]]
+Name = "description"
+Type = "varchar"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "max_length"
+Value = 512
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "not_null"
+
+[[Migration.Operations.Fields]]
+Name = "category"
+Type = "choices"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "choices"
+Value = [
+    "Groceries",
+    "DrugStore",
+    "Flowers",
+]
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "not_null"
+
+[[Migration.Operations.Fields]]
+Name = "created_at"
+Type = "datetime"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "auto_create_time"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "not_null"
+
+[[Migration.Operations]]
+Type = "CreateModel"
+Name = "user"
+
+[[Migration.Operations.Fields]]
+Name = "uuid"
+Type = "varbinary"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "primary_key"
+
+[[Migration.Operations.Fields]]
+Name = "username"
+Type = "varchar"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "index"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "max_length"
+Value = 255
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "unique"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "not_null"
+
+[[Migration.Operations.Fields]]
+Name = "display_name"
+Type = "varchar"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "max_length"
+Value = 255
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "not_null"
+
+[[Migration.Operations.Fields]]
+Name = "password_hash"
+Type = "varchar"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "max_length"
+Value = 1024
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "not_null"
+
+[[Migration.Operations.Fields]]
+Name = "admin"
+Type = "boolean"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "not_null"
+
+[[Migration.Operations.Fields]]
+Name = "last_login"
+Type = "datetime"
+Annotations = []
+
+[[Migration.Operations.Fields]]
+Name = "created_at"
+Type = "datetime"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "auto_create_time"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "not_null"
+
+[[Migration.Operations]]
+Type = "CreateModel"
+Name = "dbsession"
+
+[[Migration.Operations.Fields]]
+Name = "session_key"
+Type = "varchar"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "max_length"
+Value = 4096
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "primary_key"
+
+[[Migration.Operations.Fields]]
+Name = "session_state"
+Type = "varchar"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "max_length"
+Value = 1048576
+
+[[Migration.Operations.Fields]]
+Name = "expired_after"
+Type = "datetime"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "not_null"
+
+[[Migration.Operations]]
+Type = "RawSQL"
+SQLite = ""
+MySQL = ""
+Postgres = """ALTER TABLE product
+    ADD COLUMN textsearchable_index_col tsvector
+        GENERATED ALWAYS AS (
+            setweight(to_tsvector('german', coalesce(name, '')), 'A') ||
+            setweight(to_tsvector('german', coalesce(main_category, '')), 'B') ||
+            setweight(to_tsvector('german', coalesce(description, '')), 'D')
+        ) STORED;"""
+
+[[Migration.Operations]]
+Type = "RawSQL"
+SQLite = ""
+MySQL = ""
+Postgres = "CREATE INDEX textsearch_idx ON product USING GIN (textsearchable_index_col);"

@@ -1,8 +1,10 @@
 use rorm::{DbEnum, Model, Patch};
+use serde::Serialize;
 use uuid::Uuid;
 
 #[derive(DbEnum)]
 pub enum ProductCategory {
+    All,
     BabyFoods,
     Beverages,
     Breads,
@@ -36,7 +38,7 @@ pub enum ProductCategory {
 }
 
 /// The definition of a user
-#[derive(Model)]
+#[derive(Model, Serialize)]
 pub struct Product {
     /// Primary key of the product item, a uuid v4
     #[rorm(primary_key)]
@@ -47,7 +49,7 @@ pub struct Product {
     pub ean_code: Option<String>,
 
     /// Product item display name
-    #[rorm(max_length = 255, unique, index)]
+    #[rorm(max_length = 255, index)]
     pub name: String,
 
     /// Typical product item quantity
@@ -63,7 +65,8 @@ pub struct Product {
     pub image: String,
 
     /// Most specific product category
-    pub main_category: ProductCategory,
+    #[rorm(max_length = 64)]
+    pub main_category: String,
 
     /// Creation time of the user
     #[rorm(auto_create_time)]
@@ -72,12 +75,12 @@ pub struct Product {
 
 #[derive(Patch)]
 #[rorm(model = "Product")]
-pub(crate) struct ProductInsert {
-    pub(crate) uuid: Uuid,
-    pub(crate) ean_code: Option<String>,
-    pub(crate) name: String,
-    pub(crate) quantity: Option<String>,
-    pub(crate) description: String,
-    pub(crate) image: String,
-    pub(crate) main_category: ProductCategory,
+pub struct ProductInsert {
+    pub uuid: Uuid,
+    pub ean_code: Option<String>,
+    pub name: String,
+    pub quantity: Option<String>,
+    pub description: String,
+    pub image: String,
+    pub main_category: String,
 }
