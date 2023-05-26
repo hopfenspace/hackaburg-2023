@@ -85,7 +85,7 @@ pub struct ProductImages {
     ),
     security(("api_key" = []))
 )]
-#[post("product")]
+#[post("/product")]
 pub async fn create_product(
     input_json: Json<PostProductRequest>,
     db: Data<Database>,
@@ -107,17 +107,17 @@ pub async fn create_product(
 }
 
 #[utoipa::path(
-    tag = "Search",
+    tag = "Product",
     context_path = "/api/v1",
     responses(
-        (status = 200, description = "Product image", body = ProductImages),
+        (status = 200, description = "Product image", body = ImageState),
         (status = 400, description = "Client error", body = ApiErrorResponse),
         (status = 500, description = "Server error", body = ApiErrorResponse)
     ),
     params(PathUuid),
     security(("api_key" = []))
 )]
-#[get("/images/{uuid}")]
+#[get("/product/{uuid}/image")]
 pub async fn get_product_images(
     path: Path<PathUuid>,
     db: Data<Database>,
