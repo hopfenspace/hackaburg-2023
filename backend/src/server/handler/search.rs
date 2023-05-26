@@ -1,15 +1,14 @@
-use actix_web::post;
-use actix_web::web::{Data, Json};
-use rorm::{Database};
+use actix_web::get;
+use actix_web::web::{Data, Json, Query};
+use rorm::Database;
 use serde::{Deserialize, Serialize};
-use utoipa::ToSchema;
+use utoipa::{IntoParams, ToSchema};
 use uuid::Uuid;
 
+use super::ApiResult;
 use crate::server::handler::ApiError;
 
-use super::ApiResult;
-
-#[derive(Deserialize, ToSchema)]
+#[derive(Deserialize, IntoParams)]
 pub struct SearchInput {
     q: String,
 }
@@ -31,17 +30,18 @@ pub struct SearchResult {
 
 #[utoipa::path(
     tag = "Search",
+    context_path = "/api/v1",
     responses(
         (status = 200, description = "Search results", body = SearchOutput),
         (status = 400, description = "Client error", body = ApiErrorResponse),
         (status = 500, description = "Server error", body = ApiErrorResponse)
     ),
-    request_body = SearchInput,
+    params(SearchInput),
     security(("api_key" = []))
 )]
-#[post("/api/search")]
+#[get("/search")]
 pub async fn post_search(
-    input: Json<SearchInput>,
+    input: Query<SearchInput>,
     db: Data<Database>,
 ) -> ApiResult<Json<SearchOutput>> {
     let binds = [rorm_sql::value::Value::String(&input.q)];

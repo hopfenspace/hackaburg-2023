@@ -58,7 +58,7 @@ pub(crate) async fn start_server(db: Database, config: &Config) -> Result<(), St
                     .service(post_product)
                     .service(get_product_images),
             )
-            .service(Files::new("/image_cache", "image_cache"))
+        //.service(Files::new("/image_cache", "image_cache"))
     })
     .bind((
         config.server.listen_address.as_str(),

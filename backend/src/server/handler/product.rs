@@ -1,7 +1,7 @@
 use std::fs::File;
 use std::io::Write;
 
-use actix_web::web::{Data, Json, Query};
+use actix_web::web::{Data, Json, Path};
 use actix_web::{get, post};
 use rorm::{insert, query, update, Database, Model};
 use serde::{Deserialize, Serialize};
@@ -10,7 +10,7 @@ use uuid::Uuid;
 
 use super::ApiResult;
 use crate::models::product::{Product, ProductInsert};
-use crate::server::handler::ApiError;
+use crate::server::handler::PathUuid;
 
 #[derive(Deserialize, ToSchema)]
 pub struct PostProductRequest {
@@ -28,12 +28,7 @@ pub struct ProductImages {
     pub image: Option<String>,
 }
 
-#[derive(Deserialize)]
-pub struct ProductImagesQuery {
-    pub uuid: String,
-}
-
-#[post("/api/product")]
+#[post("product")]
 pub async fn post_product(
     input_json: Json<PostProductRequest>,
     db: Data<Database>,
@@ -55,23 +50,23 @@ pub async fn post_product(
 
 #[utoipa::path(
     tag = "Search",
+    context_path = "/api/v1",
     responses(
         (status = 200, description = "Product image", body = ProductImages),
         (status = 400, description = "Client error", body = ApiErrorResponse),
         (status = 500, description = "Server error", body = ApiErrorResponse)
     ),
-    request_body = ProductImagesQuery,
+    params(PathUuid),
     security(("api_key" = []))
 )]
-#[get("/api/images")]
+#[get("/images/{uuid}")]
 pub async fn get_product_images(
-    req: Query<ProductImagesQuery>,
+    path: Path<PathUuid>,
     db: Data<Database>,
 ) -> ApiResult<Json<ProductImages>> {
-    let uuid: Uuid = Uuid::parse_str(req.uuid.as_str()).map_err(|_| ApiError::MalformedInput)?;
     let product: Result<(Option<String>, Option<String>), rorm::Error> =
         query!(db.as_ref(), (Product::F.ean_code, Product::F.image))
-            .condition(Product::F.uuid.equals(uuid.as_ref()))
+            .condition(Product::F.uuid.equals(path.uuid.as_ref()))
             .one()
             .await;
 
@@ -84,7 +79,7 @@ pub async fn get_product_images(
                 if img.is_some() {
                     update!(db.as_ref(), Product)
                         .set(Product::F.image, img.as_ref())
-                        .condition(Product::F.uuid.equals(uuid.as_ref()))
+                        .condition(Product::F.uuid.equals(path.uuid.as_ref()))
                         .await?;
                     return Ok(Json(ProductImages { image: img }));
                 } else {

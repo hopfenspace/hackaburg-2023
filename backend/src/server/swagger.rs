@@ -21,14 +21,19 @@ impl Modify for CookieSecurity {
 /// Helper struct for the openapi definitions.
 #[derive(OpenApi)]
 #[openapi(
-    paths(handler::search::post_search, handler::product::get_product_images,),
+    paths(
+        handler::search::post_search,
+        handler::product::get_product_images,
+        handler::auth::login,
+        handler::auth::logout,
+    ),
     components(schemas(
         handler::ApiStatusCode,
         handler::ApiErrorResponse,
-        handler::search::SearchInput,
         handler::search::SearchOutput,
         handler::search::SearchResult,
         handler::product::ProductImages,
+        handler::auth::LoginRequest,
     )),
     modifiers(&CookieSecurity)
 )]
