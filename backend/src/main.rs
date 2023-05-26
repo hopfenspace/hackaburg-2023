@@ -148,7 +148,6 @@ async fn create_user(db: Database) -> Result<(), String> {
             username: username.to_string(),
             display_name: display_name.to_string(),
             password_hash: hashed_password,
-            admin: true,
             last_login: None,
             uuid: Uuid::new_v4(),
         })

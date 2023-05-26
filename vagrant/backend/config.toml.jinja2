@@ -6,20 +6,20 @@ SecretKey = "GupggnCDzPWc5x6g/gBmirp/xwuunT6Vc+4UAOWEGSnS67Yo9sKDbXPpczMeVcPVRtJ
 [Database]
 Host = "127.0.0.1"
 Port = 5432
-User = "hackaburg"
-Password = "hackaburg"
-Name = "hackaburg"
+User = "{{ backend_db_user }}"
+Password = "{{ backend_db_password }}"
+Name = "{{ backend_db_name }}"
 
 [Logging]
 LogLevel = "debug"
-Path = "logs/main.log"
+Path = "/var/log/backend/main.log"
 RotationFileSize = "10 MB"
 MaxRotationCount = 10
 
 [[Logging.AdditionalFileLoggers]]
 Name = "requests"
 AddToMainLogger = true
-Path = "logs/requests.log"
+Path = "/var/log/backend/requests.log"
 RotationFileSize = "10 MB"
 MaxRotationCount = 5
 AlternativePattern = "{h([{d(%Y-%m-%d %H:%M:%S)} | {({l}):5.5}])} {m}{n}"
