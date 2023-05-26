@@ -16,65 +16,70 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface PostProductRequest
+ * @interface CreateProductRequest
  */
-export interface PostProductRequest {
+export interface CreateProductRequest {
     /**
      * 
      * @type {string}
-     * @memberof PostProductRequest
+     * @memberof CreateProductRequest
      */
     eanCode?: string | null;
     /**
      * 
      * @type {string}
-     * @memberof PostProductRequest
+     * @memberof CreateProductRequest
      */
     name: string;
     /**
      * 
      * @type {string}
-     * @memberof PostProductRequest
+     * @memberof CreateProductRequest
      */
     quantity?: string | null;
     /**
      * 
      * @type {string}
-     * @memberof PostProductRequest
+     * @memberof CreateProductRequest
      */
-    description: string;
+    description?: string | null;
     /**
      * 
      * @type {string}
-     * @memberof PostProductRequest
+     * @memberof CreateProductRequest
      */
-    image: string;
+    image?: string | null;
     /**
      * 
      * @type {string}
-     * @memberof PostProductRequest
+     * @memberof CreateProductRequest
      */
     mainCategory: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateProductRequest
+     */
+    shop: string;
 }
 
 /**
- * Check if a given object implements the PostProductRequest interface.
+ * Check if a given object implements the CreateProductRequest interface.
  */
-export function instanceOfPostProductRequest(value: object): boolean {
+export function instanceOfCreateProductRequest(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "name" in value;
-    isInstance = isInstance && "description" in value;
-    isInstance = isInstance && "image" in value;
     isInstance = isInstance && "mainCategory" in value;
+    isInstance = isInstance && "shop" in value;
 
     return isInstance;
 }
 
-export function PostProductRequestFromJSON(json: any): PostProductRequest {
-    return PostProductRequestFromJSONTyped(json, false);
+export function CreateProductRequestFromJSON(json: any): CreateProductRequest {
+    return CreateProductRequestFromJSONTyped(json, false);
 }
 
-export function PostProductRequestFromJSONTyped(json: any, ignoreDiscriminator: boolean): PostProductRequest {
+export function CreateProductRequestFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreateProductRequest {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -83,13 +88,14 @@ export function PostProductRequestFromJSONTyped(json: any, ignoreDiscriminator: 
         'eanCode': !exists(json, 'ean_code') ? undefined : json['ean_code'],
         'name': json['name'],
         'quantity': !exists(json, 'quantity') ? undefined : json['quantity'],
-        'description': json['description'],
-        'image': json['image'],
+        'description': !exists(json, 'description') ? undefined : json['description'],
+        'image': !exists(json, 'image') ? undefined : json['image'],
         'mainCategory': json['main_category'],
+        'shop': json['shop'],
     };
 }
 
-export function PostProductRequestToJSON(value?: PostProductRequest | null): any {
+export function CreateProductRequestToJSON(value?: CreateProductRequest | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -104,6 +110,7 @@ export function PostProductRequestToJSON(value?: PostProductRequest | null): any
         'description': value.description,
         'image': value.image,
         'main_category': value.mainCategory,
+        'shop': value.shop,
     };
 }
 

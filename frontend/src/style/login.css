@@ -1,17 +1,24 @@
 .login-container {
+    margin-top: 2em;
     display: flex;
     flex-direction: column;
     justify-items: center;
     align-items: center;
+    gap: 2em;
 }
 
 .login-form {
-    display: contents;
+    background-color: white;
+    padding: 1.5em;
+    border-radius: 10%;
+    box-shadow: 0 0 1em var(--level-2);
 }
+
 .login-form > div {
     display: grid;
     grid-template-columns: 1fr 2fr;
 }
+
 .login-form > div > label {
     display: contents;
 }

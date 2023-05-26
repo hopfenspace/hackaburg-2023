@@ -12,17 +12,8 @@ export default function Home(props: HomeProps) {
     const [postalCode, setPostalCode] = React.useState("");
     return (
         <div className="home">
-            <h1>Kauf überall, liefer einmal</h1>
+            <h1 className={"heading"}>Kauf überall, liefer einmal</h1>
             <SearchBar ref={searchBar} />
-            <PostalInput value={postalCode} onChange={setPostalCode} />
-            <p>"CyberProject" verbindet alle deine lokalen Läden mit einem Zentralen Lieferdienst.</p>
-            <p>
-                Somit können Bestellungen mehrerer Kunden zusammengefasst werden, um Emissionen durch transport zu
-                reduzieren und den Stadtverkehr zu entlasten
-            </p>
-            <p>
-                <big onClick={() => searchBar.current?.focus()}>Probier es doch mal</big>
-            </p>
         </div>
     );
 }
@@ -36,7 +27,7 @@ const SearchBar = React.forwardRef(function SearchBar(
     const [results, setResults] = React.useState<null | Array<SearchResult>>(null);
 
     return (
-        <div className="search-bar">
+        <>
             <Input
                 ref={ref}
                 placeholder="Was möchtest du bestellen?"
@@ -45,17 +36,17 @@ const SearchBar = React.forwardRef(function SearchBar(
                     setSearch(newValue);
                     Api.search(newValue).then(handleApiError(({ results }) => setResults(results)));
                 }}
+                className={"search-bar"}
             />
+
             {results && (
-                <div>
+                <div className={"search-results"}>
                     {results.map(({ name, quantity, description, image, mainCategory }) => (
-                        <div>
-                            {name} <small>{description}</small>
-                        </div>
+                        <div>{name}</div>
                     ))}
                 </div>
             )}
-        </div>
+        </>
     );
 });
 

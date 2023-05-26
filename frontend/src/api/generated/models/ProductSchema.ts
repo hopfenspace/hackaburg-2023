@@ -13,82 +13,105 @@
  */
 
 import { exists, mapValues } from '../runtime';
+import type { ImageState } from './ImageState';
+import {
+    ImageStateFromJSON,
+    ImageStateFromJSONTyped,
+    ImageStateToJSON,
+} from './ImageState';
+
 /**
  * 
  * @export
- * @interface SearchResult
+ * @interface ProductSchema
  */
-export interface SearchResult {
+export interface ProductSchema {
     /**
      * 
      * @type {string}
-     * @memberof SearchResult
+     * @memberof ProductSchema
      */
     uuid: string;
     /**
      * 
      * @type {string}
-     * @memberof SearchResult
+     * @memberof ProductSchema
+     */
+    shop: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProductSchema
+     */
+    eanCode?: string | null;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProductSchema
      */
     name: string;
     /**
      * 
      * @type {string}
-     * @memberof SearchResult
+     * @memberof ProductSchema
      */
     quantity?: string | null;
     /**
      * 
      * @type {string}
-     * @memberof SearchResult
+     * @memberof ProductSchema
      */
     description?: string | null;
     /**
      * 
-     * @type {string}
-     * @memberof SearchResult
+     * @type {ImageState}
+     * @memberof ProductSchema
      */
-    image?: string | null;
+    image: ImageState;
     /**
      * 
      * @type {string}
-     * @memberof SearchResult
+     * @memberof ProductSchema
      */
     mainCategory: string;
 }
 
 /**
- * Check if a given object implements the SearchResult interface.
+ * Check if a given object implements the ProductSchema interface.
  */
-export function instanceOfSearchResult(value: object): boolean {
+export function instanceOfProductSchema(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "uuid" in value;
+    isInstance = isInstance && "shop" in value;
     isInstance = isInstance && "name" in value;
+    isInstance = isInstance && "image" in value;
     isInstance = isInstance && "mainCategory" in value;
 
     return isInstance;
 }
 
-export function SearchResultFromJSON(json: any): SearchResult {
-    return SearchResultFromJSONTyped(json, false);
+export function ProductSchemaFromJSON(json: any): ProductSchema {
+    return ProductSchemaFromJSONTyped(json, false);
 }
 
-export function SearchResultFromJSONTyped(json: any, ignoreDiscriminator: boolean): SearchResult {
+export function ProductSchemaFromJSONTyped(json: any, ignoreDiscriminator: boolean): ProductSchema {
     if ((json === undefined) || (json === null)) {
         return json;
     }
     return {
         
         'uuid': json['uuid'],
+        'shop': json['shop'],
+        'eanCode': !exists(json, 'ean_code') ? undefined : json['ean_code'],
         'name': json['name'],
         'quantity': !exists(json, 'quantity') ? undefined : json['quantity'],
         'description': !exists(json, 'description') ? undefined : json['description'],
-        'image': !exists(json, 'image') ? undefined : json['image'],
+        'image': ImageStateFromJSON(json['image']),
         'mainCategory': json['main_category'],
     };
 }
 
-export function SearchResultToJSON(value?: SearchResult | null): any {
+export function ProductSchemaToJSON(value?: ProductSchema | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -98,10 +121,12 @@ export function SearchResultToJSON(value?: SearchResult | null): any {
     return {
         
         'uuid': value.uuid,
+        'shop': value.shop,
+        'ean_code': value.eanCode,
         'name': value.name,
         'quantity': value.quantity,
         'description': value.description,
-        'image': value.image,
+        'image': ImageStateToJSON(value.image),
         'main_category': value.mainCategory,
     };
 }

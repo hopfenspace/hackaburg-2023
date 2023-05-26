@@ -1,27 +1,30 @@
 :root {
-    --level-0: white;
-    --level-1: green;
-    --level-2: darkgreen;
+    --level-0: #2ea15e;
+    --level-1: #26834c;
+    --level-2: #206e42;
     --text: black;
-    --primary: #0cf;
-    --primary-op: #00ccff40;
-    --secondary: #00ffb3;
+    --primary: #2ea15e;
+    --primary-dark: #36be6f;
+    --primary-op: #2ea15e40;
 }
 
 body {
     margin: 0;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     color: var(--text);
+    background-color: var(--primary);
 }
 
 #root {
     display: flex;
+    width: 100%;
     flex-direction: column;
 }
 
 .icon {
     width: 2em;
     height: 2em;
+    filter: invert();
 }
 
 .flex-row {

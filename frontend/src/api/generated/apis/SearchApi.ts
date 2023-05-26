@@ -16,20 +16,17 @@
 import * as runtime from '../runtime';
 import type {
   ApiErrorResponse,
-  SearchInput,
   SearchOutput,
 } from '../models';
 import {
     ApiErrorResponseFromJSON,
     ApiErrorResponseToJSON,
-    SearchInputFromJSON,
-    SearchInputToJSON,
     SearchOutputFromJSON,
     SearchOutputToJSON,
 } from '../models';
 
 export interface PostSearchRequest {
-    searchInput: SearchInput;
+    q: string;
 }
 
 /**
@@ -40,22 +37,23 @@ export class SearchApi extends runtime.BaseAPI {
     /**
      */
     async postSearchRaw(requestParameters: PostSearchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SearchOutput>> {
-        if (requestParameters.searchInput === null || requestParameters.searchInput === undefined) {
-            throw new runtime.RequiredError('searchInput','Required parameter requestParameters.searchInput was null or undefined when calling postSearch.');
+        if (requestParameters.q === null || requestParameters.q === undefined) {
+            throw new runtime.RequiredError('q','Required parameter requestParameters.q was null or undefined when calling postSearch.');
         }
 
         const queryParameters: any = {};
 
+        if (requestParameters.q !== undefined) {
+            queryParameters['q'] = requestParameters.q;
+        }
+
         const headerParameters: runtime.HTTPHeaders = {};
 
-        headerParameters['Content-Type'] = 'application/json';
-
         const response = await this.request({
-            path: `/api/search`,
-            method: 'POST',
+            path: `/api/v1/search`,
+            method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-            body: SearchInputToJSON(requestParameters.searchInput),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => SearchOutputFromJSON(jsonValue));

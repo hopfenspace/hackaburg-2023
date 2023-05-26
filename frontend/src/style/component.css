@@ -4,7 +4,6 @@
     padding: 0.5em 0.5em;
     border: none;
     border-radius: 0.5em;
-    box-shadow: inset 0 -3px 2em -3px var(--primary-op), 0 0 10em #0cf3, 0 0 .5em #0ff2;
 }
 
 .button {
@@ -17,8 +16,6 @@
     border-radius: 0.5em;
     color: var(--text);
     padding: 0.5em 0.5em;
-    transition: padding linear 500ms, margin-top linear 500ms, background-color ease-in-out 500ms;
-    box-shadow: inset 0 -3px 2em var(--primary-op), 0 0 10em #0cf3, 0 0 .5em #0ff2;
 }
 
 .button:hover {
@@ -27,4 +24,9 @@
 
 .button:active {
     transform: translate(1px, 1px);
+}
+
+.heading {
+    text-align: center;
+    color: white;
 }
