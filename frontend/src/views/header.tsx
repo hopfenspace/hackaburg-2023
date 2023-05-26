@@ -11,7 +11,7 @@ export default function Header(props: HeaderProps) {
     return (
         <div className={"header"}>
             <div className={"header-name"} {...ROUTES.HOME.clickHandler({})}>
-                Hackaburg 2023
+                Collegit
             </div>
             <div className={"header-links"}>
                 {user === null ? (
