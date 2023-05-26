@@ -32,15 +32,22 @@ pub struct ProductSchema {
     pub name: String,
     pub quantity: Option<String>,
     pub description: Option<String>,
-    pub image: ImageState,
+    pub image_state: ImageState,
+    pub image: Option<String>,
     pub main_category: String,
 }
 
 #[derive(Serialize, ToSchema)]
 pub enum ImageState {
     Untried,
-    Found(String),
+    Found,
     NotFound,
+}
+
+#[derive(Serialize, ToSchema)]
+pub struct ImageResult {
+    pub image_state: ImageState,
+    pub image: Option<String>,
 }
 
 #[utoipa::path(
@@ -110,7 +117,7 @@ pub async fn create_product(
     tag = "Product",
     context_path = "/api/v1",
     responses(
-        (status = 200, description = "Product image", body = ImageState),
+        (status = 200, description = "Product image", body = ImageResult),
         (status = 400, description = "Client error", body = ApiErrorResponse),
         (status = 500, description = "Server error", body = ApiErrorResponse)
     ),
@@ -121,7 +128,7 @@ pub async fn create_product(
 pub async fn get_product_images(
     path: Path<PathUuid>,
     db: Data<Database>,
-) -> ApiResult<Json<ImageState>> {
+) -> ApiResult<Json<ImageResult>> {
     let (ean_code, image, requested) = query!(
         db.as_ref(),
         (
@@ -135,9 +142,15 @@ pub async fn get_product_images(
     .await?;
 
     let state = if let Some(image) = image {
-        ImageState::Found(image)
+        ImageResult {
+            image_state: ImageState::Found,
+            image: Some(image),
+        }
     } else if requested || ean_code.is_none() {
-        ImageState::NotFound
+        ImageResult {
+            image_state: ImageState::NotFound,
+            image: None,
+        }
     } else {
         if let Some(image) = download_ean_image(ean_code.expect("Checked in other if branch")).await
         {
@@ -146,9 +159,15 @@ pub async fn get_product_images(
                 .set(Product::F.image_requested, true)
                 .condition(Product::F.uuid.equals(path.uuid.as_ref()))
                 .await?;
-            ImageState::Found(image)
+            ImageResult {
+                image_state: ImageState::Found,
+                image: Some(image),
+            }
         } else {
-            ImageState::NotFound
+            ImageResult {
+                image_state: ImageState::NotFound,
+                image: None
+            }
         }
     };
     Ok(Json(state))
@@ -212,13 +231,14 @@ impl From<Product> for ProductSchema {
             name,
             quantity,
             description,
-            image: if let Some(image) = image {
-                ImageState::Found(image)
+            image_state: if image.is_some() {
+                ImageState::Found
             } else if image_requested {
                 ImageState::NotFound
             } else {
                 ImageState::Untried
             },
+            image,
             main_category,
             shop: *shop.key(),
         }

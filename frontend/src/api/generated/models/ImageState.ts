@@ -12,54 +12,28 @@
  * Do not edit the class manually.
  */
 
-import {
-    ImageStateOneOf,
-    instanceOfImageStateOneOf,
-    ImageStateOneOfFromJSON,
-    ImageStateOneOfFromJSONTyped,
-    ImageStateOneOfToJSON,
-} from './ImageStateOneOf';
-import {
-    string,
-    instanceOfstring,
-    stringFromJSON,
-    stringFromJSONTyped,
-    stringToJSON,
-} from './string';
 
 /**
- * @type ImageState
  * 
  * @export
  */
-export type ImageState = ImageStateOneOf | string;
+export const ImageState = {
+    Untried: 'Untried',
+    Found: 'Found',
+    NotFound: 'NotFound'
+} as const;
+export type ImageState = typeof ImageState[keyof typeof ImageState];
+
 
 export function ImageStateFromJSON(json: any): ImageState {
     return ImageStateFromJSONTyped(json, false);
 }
 
 export function ImageStateFromJSONTyped(json: any, ignoreDiscriminator: boolean): ImageState {
-    if ((json === undefined) || (json === null)) {
-        return json;
-    }
-    return { ...ImageStateOneOfFromJSONTyped(json, true), ...stringFromJSONTyped(json, true) };
+    return json as ImageState;
 }
 
 export function ImageStateToJSON(value?: ImageState | null): any {
-    if (value === undefined) {
-        return undefined;
-    }
-    if (value === null) {
-        return null;
-    }
-
-    if (instanceOfImageStateOneOf(value)) {
-        return ImageStateOneOfToJSON(value as ImageStateOneOf);
-    }
-    if (instanceOfstring(value)) {
-        return stringToJSON(value as string);
-    }
-
-    return {};
+    return value as any;
 }
 

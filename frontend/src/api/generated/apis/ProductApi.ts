@@ -17,7 +17,7 @@ import * as runtime from '../runtime';
 import type {
   ApiErrorResponse,
   CreateProductRequest,
-  ImageState,
+  ImageResult,
   ProductSchema,
 } from '../models';
 import {
@@ -25,8 +25,8 @@ import {
     ApiErrorResponseToJSON,
     CreateProductRequestFromJSON,
     CreateProductRequestToJSON,
-    ImageStateFromJSON,
-    ImageStateToJSON,
+    ImageResultFromJSON,
+    ImageResultToJSON,
     ProductSchemaFromJSON,
     ProductSchemaToJSON,
 } from '../models';
@@ -109,7 +109,7 @@ export class ProductApi extends runtime.BaseAPI {
 
     /**
      */
-    async getProductImagesRaw(requestParameters: GetProductImagesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ImageState>> {
+    async getProductImagesRaw(requestParameters: GetProductImagesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<ImageResult>> {
         if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
             throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling getProductImages.');
         }
@@ -125,12 +125,12 @@ export class ProductApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => ImageStateFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => ImageResultFromJSON(jsonValue));
     }
 
     /**
      */
-    async getProductImages(requestParameters: GetProductImagesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ImageState> {
+    async getProductImages(requestParameters: GetProductImagesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ImageResult> {
         const response = await this.getProductImagesRaw(requestParameters, initOverrides);
         return await response.value();
     }

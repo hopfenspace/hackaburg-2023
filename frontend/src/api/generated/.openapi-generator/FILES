@@ -6,8 +6,8 @@ index.ts
 models/ApiErrorResponse.ts
 models/ApiStatusCode.ts
 models/CreateProductRequest.ts
+models/ImageResult.ts
 models/ImageState.ts
-models/ImageStateOneOf.ts
 models/LoginRequest.ts
 models/ProductImages.ts
 models/ProductSchema.ts

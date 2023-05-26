@@ -67,7 +67,13 @@ export interface ProductSchema {
      * @type {ImageState}
      * @memberof ProductSchema
      */
-    image: ImageState;
+    imageState: ImageState;
+    /**
+     * 
+     * @type {string}
+     * @memberof ProductSchema
+     */
+    image?: string | null;
     /**
      * 
      * @type {string}
@@ -84,7 +90,7 @@ export function instanceOfProductSchema(value: object): boolean {
     isInstance = isInstance && "uuid" in value;
     isInstance = isInstance && "shop" in value;
     isInstance = isInstance && "name" in value;
-    isInstance = isInstance && "image" in value;
+    isInstance = isInstance && "imageState" in value;
     isInstance = isInstance && "mainCategory" in value;
 
     return isInstance;
@@ -106,7 +112,8 @@ export function ProductSchemaFromJSONTyped(json: any, ignoreDiscriminator: boole
         'name': json['name'],
         'quantity': !exists(json, 'quantity') ? undefined : json['quantity'],
         'description': !exists(json, 'description') ? undefined : json['description'],
-        'image': ImageStateFromJSON(json['image']),
+        'imageState': ImageStateFromJSON(json['image_state']),
+        'image': !exists(json, 'image') ? undefined : json['image'],
         'mainCategory': json['main_category'],
     };
 }
@@ -126,7 +133,8 @@ export function ProductSchemaToJSON(value?: ProductSchema | null): any {
         'name': value.name,
         'quantity': value.quantity,
         'description': value.description,
-        'image': ImageStateToJSON(value.image),
+        'image_state': ImageStateToJSON(value.imageState),
+        'image': value.image,
         'main_category': value.mainCategory,
     };
 }
