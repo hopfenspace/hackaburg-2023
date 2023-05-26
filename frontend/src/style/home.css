@@ -6,15 +6,22 @@
     margin: 1em;
 }
 
+.home > h1 {}
+
+.home > p > big {
+    cursor: pointer;
+}
+
 .search-bar {
     position: relative;
     background-color: var(--level-1);
     padding: 0.5em;
     box-sizing: border-box;
-    border-radius: 0.5em;
+    border-radius: 1.0em;
 }
 .search-bar > input {
-    width: 50em;
+    width: 30em;
+    font-size: 1.5em;
 }
 .search-bar > div {
     position: absolute;

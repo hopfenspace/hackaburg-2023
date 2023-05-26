@@ -3,19 +3,10 @@ import React from "react";
 export type InputProps = {
     value: string;
     onChange: (newValue: string) => any;
-    autoFocus?: boolean;
-} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange" | "autoFocus">;
+} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange">;
 
-export default function Input(props: InputProps) {
-    const { value, onChange, autoFocus, ...passThrough } = props;
-
-    const callback = React.useCallback((element: HTMLInputElement) => {
-        if (element && autoFocus) {
-            setTimeout(function () {
-                element.focus();
-            }, 10);
-        } // eslint-disable-next-line
-    }, []);
+const Input = React.forwardRef(function Input(props: InputProps, ref: React.ForwardedRef<HTMLInputElement>) {
+    const { value, onChange, ...passThrough } = props;
 
     return (
         <input
@@ -24,8 +15,9 @@ export default function Input(props: InputProps) {
             onChange={(e) => {
                 onChange(e.target.value);
             }}
-            ref={callback}
+            ref={ref}
             {...passThrough}
         />
     );
-}
+});
+export default Input;
