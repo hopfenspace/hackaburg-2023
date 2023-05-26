@@ -1,0 +1,43 @@
+.home {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1em;
+    margin: 1em;
+}
+
+.search-bar {
+    position: relative;
+    background-color: var(--level-1);
+    padding: 0.5em;
+    box-sizing: border-box;
+    border-radius: 0.5em;
+}
+.search-bar > input {
+    width: 50em;
+}
+.search-bar > div {
+    position: absolute;
+    left: 0;
+    top: 2.5em;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--level-1);
+    border-bottom-left-radius: 0.5em;
+    border-bottom-right-radius: 0.5em;
+}
+
+.postal-input {
+    display: flex;
+    flex-direction: row;
+}
+.postal-input > button {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+.postal-input > input {
+    margin-right: 1px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
