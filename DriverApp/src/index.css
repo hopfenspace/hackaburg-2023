@@ -34,22 +34,33 @@ body {
 
 .item {
     width: 100%;
-    margin-top: 5px;
-    margin-left: 10px;
-    margin-right: 10px;
-    padding: 2px;
-    background-color: #ddd;
+    padding: 8px;
+    background-color: #fff;
 
     display: grid;
-    grid-template-columns: 1fr auto minmax(9ch, auto);
+    grid-template-columns: 6ch 1fr auto;
     grid-template-rows: auto auto;
-    gap: 2px;
+    gap: 8px;
+    border-bottom: 1px solid #ccc;
+}
+
+.item:first-child {
+    background-color: #2EA15E;
+    color: white;
+}
+
+.item-name {
+    grid-column: 2;
 }
 
 .item-address {
-    grid-column: 1 / span 3;
+    grid-column: 2 / span 2;
+    opacity: 0.6;
 }
 
 .item-time {
+    font-weight: bold;
     text-align: right;
+    grid-column: 1;
+    grid-row: 1 / span 2;
 }
