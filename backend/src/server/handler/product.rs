@@ -1,20 +1,16 @@
-use std::{fs::File, io::Write};
+use std::fs::File;
+use std::io::Write;
 
-use actix_web::{
-    get, post,
-    web::{Data, Json, Query},
-};
+use actix_web::web::{Data, Json, Query};
+use actix_web::{get, post};
 use rorm::{insert, query, update, Database, Model};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 use uuid::Uuid;
 
-use crate::{
-    models::product::{Product, ProductInsert},
-    server::handler::ApiError,
-};
-
 use super::ApiResult;
+use crate::models::product::{Product, ProductInsert};
+use crate::server::handler::ApiError;
 
 #[derive(Deserialize, ToSchema)]
 pub struct PostProductRequest {
@@ -72,7 +68,7 @@ pub async fn get_product_images(
     req: Query<ProductImagesQuery>,
     db: Data<Database>,
 ) -> ApiResult<Json<ProductImages>> {
-    let uuid: Uuid = Uuid::parse_str(&req.uuid.as_str()).map_err(|_| ApiError::MalformedInput)?;
+    let uuid: Uuid = Uuid::parse_str(req.uuid.as_str()).map_err(|_| ApiError::MalformedInput)?;
     let product: Result<(Option<String>, Option<String>), rorm::Error> =
         query!(db.as_ref(), (Product::F.ean_code, Product::F.image))
             .condition(Product::F.uuid.equals(uuid.as_ref()))
@@ -82,7 +78,7 @@ pub async fn get_product_images(
     match product {
         Ok((ean_code, image)) => {
             if image.is_some() {
-                return Ok(Json(ProductImages { image: image }));
+                return Ok(Json(ProductImages { image }));
             } else if ean_code.is_some() {
                 let img = download_ean_image(ean_code.unwrap()).await;
                 if img.is_some() {
@@ -136,5 +132,5 @@ async fn download_ean_image(ean: String) -> Option<String> {
     let mut out = File::create(format!("image_cache/{ean}.jpg")).expect("failed to create file");
     out.write_all(image_response_string.as_bytes()).ok()?;
 
-    return Some(format!("image_cache/{ean}.jpg"));
+    Some(format!("image_cache/{ean}.jpg"))
 }

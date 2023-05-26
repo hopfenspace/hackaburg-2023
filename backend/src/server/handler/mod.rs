@@ -1,8 +1,5 @@
 //! This module holds the handler of runciv
 
-pub mod search;
-pub mod product;
-
 use std::fmt::{Display, Formatter};
 
 use actix_toolbox::tb_middleware::actix_session;
@@ -13,6 +10,12 @@ use serde::{Deserialize, Serialize};
 use serde_repr::Serialize_repr;
 use utoipa::{IntoParams, ToSchema};
 use uuid::Uuid;
+
+pub use crate::server::handler::auth::*;
+
+pub mod auth;
+pub mod product;
+pub mod search;
 
 /// The uuid in a path
 #[derive(Deserialize, IntoParams)]

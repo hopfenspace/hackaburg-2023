@@ -1,3 +1,4 @@
+use actix_files::Files;
 use actix_toolbox::tb_middleware::{
     setup_logging_mw, DBSessionStore, LoggingMiddlewareConfig, PersistentSession, SessionMiddleware,
 };
@@ -5,21 +6,20 @@ use actix_web::cookie::time::Duration;
 use actix_web::cookie::Key;
 use actix_web::http::StatusCode;
 use actix_web::middleware::{Compress, ErrorHandlers};
-use actix_web::web::{Data, JsonConfig, PayloadConfig};
+use actix_web::web::{scope, Data, JsonConfig, PayloadConfig};
 use actix_web::{App, HttpServer};
-use actix_files::Files;
 use base64::prelude::BASE64_STANDARD;
 use base64::Engine;
 use rorm::Database;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
+use self::handler::product::{get_product_images, post_product};
+use self::handler::search::post_search;
 use crate::config::Config;
+use crate::server::handler::{login, logout};
 use crate::server::middleware::{handle_not_found, json_extractor_error};
 use crate::server::swagger::ApiDoc;
-
-use self::handler::search::{post_search};
-use self::handler::product::{post_product, get_product_images};
 
 mod handler;
 pub mod middleware;
@@ -51,9 +51,13 @@ pub(crate) async fn start_server(db: Database, config: &Config) -> Result<(), St
             .wrap(Compress::default())
             .wrap(ErrorHandlers::new().handler(StatusCode::NOT_FOUND, handle_not_found))
             .service(SwaggerUi::new("/docs/{_:.*}").url("/api-doc/openapi.json", ApiDoc::openapi()))
-            .service(post_search)
-            .service(post_product)
-            .service(get_product_images)
+            .service(scope("/api/v1/auth").service(login).service(logout))
+            .service(
+                scope("/api/v1")
+                    .service(post_search)
+                    .service(post_product)
+                    .service(get_product_images),
+            )
             .service(Files::new("/image_cache", "image_cache"))
     })
     .bind((
