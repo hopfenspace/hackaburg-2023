@@ -1,0 +1,12 @@
+.openapi-generator-ignore
+apis/SearchApi.ts
+apis/index.ts
+index.ts
+models/ApiErrorResponse.ts
+models/ApiStatusCode.ts
+models/PostProductRequest.ts
+models/SearchInput.ts
+models/SearchOutput.ts
+models/SearchResult.ts
+models/index.ts
+runtime.ts

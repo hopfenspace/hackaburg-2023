@@ -2,6 +2,9 @@ import Input, { InputProps } from "../components/input";
 import LOCATION_SVG from "../assets/location.svg";
 import React from "react";
 import "../style/home.css";
+import { Api } from "../api";
+import { handleApiError } from "../utils/helper";
+import { SearchResult } from "../api/generated";
 
 type HomeProps = {};
 export default function Home(props: HomeProps) {
@@ -25,13 +28,23 @@ type SearchBarProps = InputProps & {
 };
 function SearchBar(props: SearchBarProps) {
     const { suggestions, ...inputProps } = props;
+    const [results, setResults] = React.useState<null | Array<SearchResult>>(null);
+
+    const { onChange } = inputProps;
+    inputProps.onChange = (newValue: string) => {
+        onChange(newValue);
+        Api.search(newValue).then(handleApiError(({ results }) => setResults(results)));
+    };
+
     return (
         <div className="search-bar">
             <Input {...inputProps} />
-            {suggestions && suggestions.length > 0 && (
+            {results && (
                 <div>
-                    {suggestions.map((suggestion) => (
-                        <div>{suggestion}</div>
+                    {results.map(({ name, quantity, description, image, mainCategory }) => (
+                        <div>
+                            {name} <small>{description}</small>
+                        </div>
                     ))}
                 </div>
             )}
