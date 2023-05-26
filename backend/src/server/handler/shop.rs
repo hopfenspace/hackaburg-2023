@@ -15,7 +15,7 @@ pub struct PostShopRequest {
     pub category: ShopCategory,
 }
 
-#[post("shop")]
+#[post("/shop")]
 pub async fn post_shop(
     input_json: Json<PostShopRequest>,
     db: Data<Database>,

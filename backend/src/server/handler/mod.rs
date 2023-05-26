@@ -14,6 +14,7 @@ use uuid::Uuid;
 pub use crate::server::handler::auth::*;
 
 pub mod auth;
+pub mod cart;
 pub mod product;
 pub mod search;
 pub mod shop;

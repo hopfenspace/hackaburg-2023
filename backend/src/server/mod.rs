@@ -17,6 +17,8 @@ use self::handler::product::{create_product, get_product_images};
 use self::handler::search::post_search;
 use self::handler::shop::post_shop;
 use crate::config::Config;
+use crate::server::handler::cart::{get_cart, put_cart};
+use crate::server::handler::product::get_product;
 use crate::server::handler::{login, logout};
 use crate::server::middleware::{handle_not_found, json_extractor_error};
 use crate::server::swagger::ApiDoc;
@@ -56,7 +58,10 @@ pub(crate) async fn start_server(db: Database, config: &Config) -> Result<(), St
                 scope("/api/v1")
                     .service(post_search)
                     .service(create_product)
+                    .service(get_product)
                     .service(get_product_images)
+                    .service(get_cart)
+                    .service(put_cart)
                     .service(post_shop),
             )
     })

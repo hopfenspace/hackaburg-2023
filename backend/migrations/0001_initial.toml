@@ -1,5 +1,5 @@
 [Migration]
-Hash = '14550371796098755662'
+Hash = '5108986682721380502'
 Initial = true
 Replaces = []
 
@@ -64,6 +64,31 @@ Type = 'datetime'
 
 [[Migration.Operations.Fields.Annotations]]
 Type = 'auto_create_time'
+
+[[Migration.Operations.Fields.Annotations]]
+Type = 'not_null'
+
+[[Migration.Operations]]
+Type = 'CreateModel'
+Name = 'cartentry'
+
+[[Migration.Operations.Fields]]
+Name = 'id'
+Type = 'int64'
+
+[[Migration.Operations.Fields.Annotations]]
+Type = 'primary_key'
+
+[[Migration.Operations.Fields]]
+Name = 'index'
+Type = 'int64'
+
+[[Migration.Operations.Fields.Annotations]]
+Type = 'not_null'
+
+[[Migration.Operations.Fields]]
+Name = 'amount'
+Type = 'int64'
 
 [[Migration.Operations.Fields.Annotations]]
 Type = 'not_null'
@@ -252,6 +277,46 @@ Name = 'expired_after'
 Type = 'datetime'
 
 [[Migration.Operations.Fields.Annotations]]
+Type = 'not_null'
+
+[[Migration.Operations]]
+Type = 'CreateField'
+Model = 'cartentry'
+
+[Migration.Operations.Field]
+Name = 'user'
+Type = 'varbinary'
+
+[[Migration.Operations.Field.Annotations]]
+Type = 'foreign_key'
+
+[Migration.Operations.Field.Annotations.Value]
+TableName = 'user'
+ColumnName = 'uuid'
+OnDelete = 'Cascade'
+OnUpdate = 'Cascade'
+
+[[Migration.Operations.Field.Annotations]]
+Type = 'not_null'
+
+[[Migration.Operations]]
+Type = 'CreateField'
+Model = 'cartentry'
+
+[Migration.Operations.Field]
+Name = 'product'
+Type = 'varbinary'
+
+[[Migration.Operations.Field.Annotations]]
+Type = 'foreign_key'
+
+[Migration.Operations.Field.Annotations.Value]
+TableName = 'product'
+ColumnName = 'uuid'
+OnDelete = 'Cascade'
+OnUpdate = 'Cascade'
+
+[[Migration.Operations.Field.Annotations]]
 Type = 'not_null'
 
 [[Migration.Operations]]
