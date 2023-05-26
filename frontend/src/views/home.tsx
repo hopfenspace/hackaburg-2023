@@ -5,6 +5,9 @@ import "../style/home.css";
 import { Api } from "../api";
 import { handleApiError } from "../utils/helper";
 import { ImageState, SearchResult } from "../api/generated";
+import INTRO_SVG from "../assets/intro-shopping-bag.svg";
+import INTRO_HEART_SVG from "../assets/intro-heart.svg";
+import NOT_FOUND_SVG from "../assets/products-not-found.svg";
 
 type HomeProps = {};
 export default function Home(props: HomeProps) {
@@ -25,6 +28,7 @@ const SearchBar = React.forwardRef(function SearchBar(
 ) {
     const [search, setSearch] = React.useState("");
     const [results, setResults] = React.useState<null | Array<SearchResult>>(null);
+    let lastTimer = 0;
 
     return (
         <>
@@ -34,29 +38,72 @@ const SearchBar = React.forwardRef(function SearchBar(
                 value={search}
                 onChange={(newValue) => {
                     setSearch(newValue);
-                    Api.search(newValue).then(handleApiError(({ results }) => setResults(results)));
+                    setResults(null);
+                    clearTimeout(lastTimer);
+                    lastTimer = setTimeout(() => {
+                        Api.search(newValue).then(handleApiError(({ results }) => setResults(results)));
+                    }, 300);
                 }}
                 className={"search-bar"}
             />
 
-            {results && (
-                <div className={"search-results"}>
-                    {results.map(({ uuid, name, quantity, description, image, mainCategory }) => (
-                        <div>
-                            {image
-                                ? <img src={image} alt="" />
-                                : <LazyLoadImage uuid={uuid} />
-                            }
-                            <div className={"amount"}>
-                                {quantity}
+            {
+                search?.length > 0
+                    ? (results && results.length > 0)
+                        ? (
+                            <div className={"search-results"}>
+                                {results.map(({ uuid, name, quantity, description, image, mainCategory }) => (
+                                    <div>
+                                        {image
+                                            ? <img src={image} alt="" />
+                                            : <LazyLoadImage uuid={uuid} />
+                                        }
+                                        <div className={"amount"}>
+                                            {quantity}
+                                        </div>
+                                        <div className={"name"}>
+                                            {name}
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
-                            <div className={"name"}>
-                                {name}
+                        ) : results ? (
+                            <div className={"teasers"}>
+                                <div>
+                                    <img src={NOT_FOUND_SVG} alt="Keine Produkte gefunden" />
+                                    <p>
+                                        Keine Produkte gefunden
+                                    </p>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="loading">
+                                <div className="bars">
+                                    <div className="bar"></div>
+                                    <div className="bar"></div>
+                                    <div className="bar"></div>
+                                </div>
+                            </div>
+                        )
+                    : (
+                        <div className={"teasers"}>
+                            <div>
+                                <img src={INTRO_SVG} alt="Collegit Lieferung" />
+                                <p>
+                                    Zeit sparen, Umgebung unterstützen, Umwelt schonen.
+                                </p>
+                            </div>
+                            <div>
+                                <img src={INTRO_HEART_SVG} alt="Collegit Lieferung" />
+                                <p>
+                                    Mit Collegit können lokale Betriebe und Unternehmen
+                                    unterstützt werden und gleichzeitig nachhaltiger
+                                    eingekauft werden.
+                                </p>
                             </div>
                         </div>
-                    ))}
-                </div>
-            )}
+                    )
+            }
         </>
     );
 });

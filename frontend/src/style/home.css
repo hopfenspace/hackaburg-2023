@@ -86,3 +86,80 @@
     background-color: var(--level-2);
     box-shadow: 0 0 1em var(--level-2);
 }
+
+.teasers > div {
+    color: white;
+    width: 80vw;
+    min-width: 600px;
+    font-size: 1.5em;
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    margin: 1em 0;
+}
+
+.teasers > div > img {
+    height: 6em;
+    width: auto;
+    margin: 1em;
+}
+
+.teasers > div:nth-child(odd) {
+    flex-direction: row;
+}
+
+.loading .bars
+{
+    display: grid;
+    width: 100vw;
+    max-width: 14em;
+    margin: 2em auto;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 60px;
+    padding-top: 20%;
+}
+
+.loading .bars .bar::before {
+    display: block;
+    content: "";
+    border-radius: 100%;
+    background-color: rgba(255, 255, 255, 0.7);
+    background: radial-gradient(rgba(255, 255, 255, 0.7) 70%, white);
+    width: 100%;
+    padding-top: 100%;
+    animation-fill-mode: both;
+    animation: bounce linear 0.8s infinite;
+    animation-delay: 0s;
+}
+
+.loading .bars .bar:nth-child(2) {
+    animation: bounce linear 1s infinite;
+}
+
+.loading .bars .bar:nth-child(3) {
+    animation: bounce linear 1.2s infinite;
+}
+
+@keyframes bounce {
+    0% {
+        transform: translateY(0%) scale(1.2, 0.8);
+    }
+    10% {
+        transform: translateY(-5%) scale(1, 1);
+    }
+    30% {
+        transform: translateY(-40%) scale(0.8, 1.2);
+    }
+    50% {
+        transform: translateY(-50%) scale(1.0, 1.0);
+    }
+    70% {
+        transform: translateY(-40%) scale(0.8, 1.2);
+    }
+    90% {
+        transform: translateY(-5%) scale(1, 1);
+    }
+    100% {
+        transform: translateY(0%) scale(1.2, 0.8);
+    }
+}
