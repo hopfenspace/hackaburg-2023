@@ -125,7 +125,7 @@
     - name: Apply nginx template
       template:
         src: backend/backend.nginx.jinja2
-        dest: /etc/nginx/sites-available/backend.conf
+        dest: /etc/nginx/sites-available/default
     - name: Link to enabled
       file:
         state: link
