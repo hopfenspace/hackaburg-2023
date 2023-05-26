@@ -138,7 +138,7 @@ void work(string file)
 		}
 	}
 
-	JSONValue[] json;
+	auto output = File(file ~ ".json", "w");
 	foreach (item; ret)
 	{
 		auto j = [
@@ -153,9 +153,6 @@ void work(string file)
 			j["ean_code"] = JSONValue(item.code);
 		if (item.quantity.length)
 			j["quantity"] = JSONValue(item.quantity);
-		json ~= JSONValue(j);
+		output.writeln(JSONValue(j).toString);
 	}
-
-	import std.file : write;
-	write(file ~ ".json", JSONValue(json).toString);
 }

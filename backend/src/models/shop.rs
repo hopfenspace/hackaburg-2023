@@ -1,7 +1,8 @@
 use rorm::{DbEnum, Model, Patch};
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(DbEnum)]
+#[derive(DbEnum, Deserialize, Serialize)]
 pub enum ShopCategory {
     Groceries,
     DrugStore,
@@ -9,7 +10,7 @@ pub enum ShopCategory {
 }
 
 /// The definition of a user
-#[derive(Model)]
+#[derive(Model, Serialize)]
 pub struct Shop {
     /// Primary key of the shop, a uuid v4
     #[rorm(primary_key)]

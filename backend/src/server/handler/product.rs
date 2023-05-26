@@ -1,9 +1,9 @@
 use std::fs::File;
-use std::io::{Cursor, Write};
+use std::io::Cursor;
 
 use actix_web::web::{Data, Json, Path};
 use actix_web::{get, post};
-use log::info;
+use rorm::fields::ForeignModelByField;
 use rorm::{insert, query, update, Database, Model};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
@@ -21,6 +21,7 @@ pub struct PostProductRequest {
     pub description: Option<String>,
     pub image: Option<String>,
     pub main_category: String,
+    pub shop: Uuid,
 }
 
 #[derive(Serialize, ToSchema)]
@@ -38,6 +39,7 @@ pub async fn post_product(
     let product = insert!(db.get_ref(), Product)
         .single(&ProductInsert {
             uuid: Uuid::new_v4(),
+            shop: Some(ForeignModelByField::Key(input.shop)),
             ean_code: input.ean_code,
             quantity: input.quantity,
             description: input.description,

@@ -1,6 +1,8 @@
-use rorm::{DbEnum, Model, Patch};
+use rorm::{DbEnum, Model, Patch, fields::ForeignModel};
 use serde::Serialize;
 use uuid::Uuid;
+
+use super::shop::Shop;
 
 #[derive(DbEnum)]
 pub enum ProductCategory {
@@ -44,6 +46,11 @@ pub struct Product {
     #[rorm(primary_key)]
     pub uuid: Uuid,
 
+    /// Shop which owns this product
+    #[rorm(on_update = "Cascade", on_delete = "SetNull")]
+    #[serde(skip)]
+    pub shop: Option<ForeignModel<Shop>>,
+
     /// EAN-13 or EAN-7 code of this product
     #[rorm(max_length = 13, index)]
     pub ean_code: Option<String>,
@@ -57,7 +64,7 @@ pub struct Product {
     pub quantity: Option<String>,
 
     /// Product item display name
-    #[rorm(max_length = 512)]
+    #[rorm(max_length = 4096)]
     pub description: Option<String>,
 
     /// Product item image URL
@@ -77,6 +84,7 @@ pub struct Product {
 #[rorm(model = "Product")]
 pub struct ProductInsert {
     pub uuid: Uuid,
+    pub shop: Option<ForeignModel<Shop>>,
     pub ean_code: Option<String>,
     pub name: String,
     pub quantity: Option<String>,

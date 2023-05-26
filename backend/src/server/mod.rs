@@ -16,6 +16,7 @@ use utoipa_swagger_ui::SwaggerUi;
 
 use self::handler::product::{get_product_images, post_product};
 use self::handler::search::post_search;
+use self::handler::shop::post_shop;
 use crate::config::Config;
 use crate::server::handler::{login, logout};
 use crate::server::middleware::{handle_not_found, json_extractor_error};
@@ -56,7 +57,8 @@ pub(crate) async fn start_server(db: Database, config: &Config) -> Result<(), St
                 scope("/api/v1")
                     .service(post_search)
                     .service(post_product)
-                    .service(get_product_images),
+                    .service(get_product_images)
+                    .service(post_shop)
             )
         //.service(Files::new("/image_cache", "image_cache"))
     })

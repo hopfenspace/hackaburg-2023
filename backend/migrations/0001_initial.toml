@@ -1,5 +1,5 @@
 [Migration]
-Hash = "8083596757627196731"
+Hash = "16877576018164291456"
 Initial = true
 Replaces = []
 
@@ -53,7 +53,7 @@ Type = "varchar"
 
 [[Migration.Operations.Fields.Annotations]]
 Type = "max_length"
-Value = 512
+Value = 4096
 
 [[Migration.Operations.Fields]]
 Name = "image"
@@ -242,6 +242,23 @@ Type = "datetime"
 
 [[Migration.Operations.Fields.Annotations]]
 Type = "not_null"
+
+[[Migration.Operations]]
+Type = "CreateField"
+Model = "product"
+
+[Migration.Operations.Field]
+Name = "shop"
+Type = "varbinary"
+
+[[Migration.Operations.Field.Annotations]]
+Type = "foreign_key"
+
+[Migration.Operations.Field.Annotations.Value]
+TableName = "shop"
+ColumnName = "uuid"
+OnDelete = "SetNull"
+OnUpdate = "Cascade"
 
 [[Migration.Operations]]
 Type = "RawSQL"
