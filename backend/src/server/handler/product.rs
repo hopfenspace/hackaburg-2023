@@ -87,7 +87,7 @@ pub struct ProductImages {
 )]
 #[post("/product")]
 pub async fn create_product(
-    input_json: Json<CreateProductRequestgi>,
+    input_json: Json<CreateProductRequest>,
     db: Data<Database>,
 ) -> ApiResult<Json<ProductSchema>> {
     let input = input_json.into_inner();
