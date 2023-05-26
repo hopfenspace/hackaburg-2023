@@ -183,6 +183,12 @@ async fn download_ean_image(ean: String) -> Option<String> {
         product: Product,
     }
 
+    let file_path = format!("image_cache/{ean}.jpg");
+
+    if std::path::Path::new(&file_path).exists() {
+        return Some(file_path);
+    }
+
     let client = reqwest::Client::builder()
         .user_agent("https://github.com/hopfenspace/hackaburg-2023/")
         .build()
@@ -204,11 +210,11 @@ async fn download_ean_image(ean: String) -> Option<String> {
         .bytes()
         .await
         .ok()?;
-    let mut out = File::create(format!("image_cache/{ean}.jpg")).expect("failed to create file");
+    let mut out = File::create(&file_path).expect("failed to create file");
     let mut content = Cursor::new(image_response_string);
     std::io::copy(&mut content, &mut out).ok()?;
 
-    Some(format!("image_cache/{ean}.jpg"))
+    Some(file_path)
 }
 
 impl From<Product> for ProductSchema {
