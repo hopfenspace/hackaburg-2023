@@ -14,7 +14,7 @@ use crate::models::product::{Product, ProductInsert};
 use crate::server::handler::{ApiError, PathUuid};
 
 #[derive(Deserialize, ToSchema)]
-pub struct PostProductRequest {
+pub struct CreateProductRequest {
     pub ean_code: Option<String>,
     pub name: String,
     pub quantity: Option<String>,
@@ -77,7 +77,7 @@ pub struct ProductImages {
 #[utoipa::path(
     tag = "Product",
     context_path = "/api/v1",
-    request_body = PostProductRequest,
+    request_body = CreateProductRequest,
     responses(
         (status = 200, description = "Created product", body = ProductSchema),
         (status = 400, description = "Client error", body = ApiErrorResponse),
@@ -87,7 +87,7 @@ pub struct ProductImages {
 )]
 #[post("/product")]
 pub async fn create_product(
-    input_json: Json<PostProductRequest>,
+    input_json: Json<CreateProductRequestgi>,
     db: Data<Database>,
 ) -> ApiResult<Json<ProductSchema>> {
     let input = input_json.into_inner();

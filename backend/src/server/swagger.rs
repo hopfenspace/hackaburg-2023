@@ -37,6 +37,7 @@ impl Modify for CookieSecurity {
         handler::product::ProductSchema,
         handler::product::ProductImages,
         handler::product::ImageState,
+        handler::product::CreateProductRequest,
         handler::auth::LoginRequest,
     )),
     modifiers(&CookieSecurity)
