@@ -4,7 +4,7 @@ import React from "react";
 import "../style/home.css";
 import { Api } from "../api";
 import { handleApiError } from "../utils/helper";
-import { SearchResult } from "../api/generated";
+import { ImageState, SearchResult } from "../api/generated";
 
 type HomeProps = {};
 export default function Home(props: HomeProps) {
@@ -41,8 +41,19 @@ const SearchBar = React.forwardRef(function SearchBar(
 
             {results && (
                 <div className={"search-results"}>
-                    {results.map(({ name, quantity, description, image, mainCategory }) => (
-                        <div>{name}</div>
+                    {results.map(({ uuid, name, quantity, description, image, mainCategory }) => (
+                        <div>
+                            {image
+                                ? <img src={image} alt="" />
+                                : <LazyLoadImage uuid={uuid} />
+                            }
+                            <div className={"amount"}>
+                                {quantity}
+                            </div>
+                            <div className={"name"}>
+                                {name}
+                            </div>
+                        </div>
                     ))}
                 </div>
             )}
@@ -52,7 +63,6 @@ const SearchBar = React.forwardRef(function SearchBar(
 
 type PostalInputProps = {
     value: string;
-    onChange(newValue: string): void;
 };
 function PostalInput(props: PostalInputProps) {
     return (
@@ -69,4 +79,31 @@ function PostalInput(props: PostalInputProps) {
             </button>
         </div>
     );
+}
+
+interface LazyLoadImageProps { uuid?: string; }
+interface LazyLoadImageState { imgSrc?: string; }
+
+class LazyLoadImage extends React.Component<LazyLoadImageProps, LazyLoadImageState> {
+    constructor(props: LazyLoadImageProps) {
+        super(props);
+        this.state = {
+            imgSrc: undefined
+        };
+    }
+
+    componentDidMount() {
+        if (this.props.uuid)
+            Api.image(this.props.uuid).then(r =>
+                r.is_ok() && r.unwrap().imageState == ImageState.Found
+                    ? this.setState({
+                        imgSrc: r.unwrap().image!
+                    }) : undefined);
+    }
+
+    render() {
+        return (
+            <img src={this.state.imgSrc} />
+        );
+    }
 }
