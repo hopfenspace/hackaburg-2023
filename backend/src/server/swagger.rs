@@ -3,6 +3,8 @@
 use utoipa::openapi::security::{ApiKey, ApiKeyValue, SecurityScheme};
 use utoipa::{Modify, OpenApi};
 
+use crate::server::handler;
+
 struct CookieSecurity;
 
 impl Modify for CookieSecurity {
@@ -18,5 +20,14 @@ impl Modify for CookieSecurity {
 
 /// Helper struct for the openapi definitions.
 #[derive(OpenApi)]
-#[openapi(paths(), components(schemas()), modifiers(&CookieSecurity))]
+#[openapi(paths(
+    handler::search::post_search,
+), components(schemas(
+    handler::ApiStatusCode,
+    handler::ApiErrorResponse,
+    handler::search::SearchInput,
+    handler::search::SearchOutput,
+    handler::search::SearchResult,
+    handler::search::PostProductRequest,
+)), modifiers(&CookieSecurity))]
 pub struct ApiDoc;
