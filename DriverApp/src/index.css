@@ -19,6 +19,24 @@ body {
     filter: hue-rotate(100deg);
 }
 
+.floating {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    height: 15vh;
+    width: 10vh;
+    background-color: #2EA15E;
+    color: white;
+    text-align: center;
+    z-index: 10000;
+}
+
+.floating span img {
+    max-width: 80%;
+    color: white;
+    filter: brightness(0) invert(1);
+}
+
 .upper {
     height: 70vh;
 }

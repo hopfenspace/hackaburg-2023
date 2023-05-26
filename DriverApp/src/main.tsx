@@ -7,24 +7,31 @@ import "./index.css";
 import {MapContainer, Marker, Polyline, Popup, TileLayer} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 
-async function getRoute(start: [number, number], end: [number, number]): Promise<Array<[number, number]>> {
+const turnIconMapping = [
+    "arrow-sub-up-left-svgrepo-com.svg", // Left
+    "arrow-sub-up-right-svgrepo-com.svg", // Right
+    "arrow-sub-up-left-svgrepo-com.svg", // Sharp left
+    "arrow-sub-up-right-svgrepo-com.svg", // Sharp right
+    "arrow-sub-up-left-svgrepo-com.svg", // Slight left
+    "arrow-sub-up-right-svgrepo-com.svg", // Slight right
+    "arrow-up-md-svgrepo-com.svg", // Straight
+    "arrow-up-md-svgrepo-com.svg", // Enter roundabout
+    "arrow-up-md-svgrepo-com.svg", // Exit roundabout
+    "arrow-undo-down-right-svgrepo-com.svg", // U-turn
+    "finish-flag-location-svgrepo-com.svg", // Goal
+    "arrow-up-md-svgrepo-com.svg", // Depart
+    "arrow-sub-up-left-svgrepo-com.svg", // Keep left
+    "arrow-sub-up-right-svgrepo-com.svg", // Keep right
+]
+
+async function getRoute(start: [number, number], end: [number, number]): Promise<[number, string, Array<[number, number]>]> {
     let result = await fetch(`https://bayern.ors.birby.de/ors/v2/directions/driving-car?start=${start[1]},${start[0]}&end=${end[1]},${end[0]}`);
     let content = await result.json();
     if (content.hasOwnProperty("error")) {
         console.error("Routing failed");
-        return [];
+        return [0, "", []];
     }
-    return content.features[0].geometry.coordinates.map((i) => [i[1], i[0]]);
-}
-
-async function getWaypoints(): Promise<Array<[number, number]>> {
-    // TODO: Make call to the backend to get the waypoints
-    return [
-        [49.01284, 12.07622],
-        [49.00581, 12.08128],
-        [49.00828, 12.07421],
-        [49.01025, 12.11706]
-    ];
+    return [content.features[0].properties.segments[0].steps[0].type, content.features[0].properties.segments[0].steps[0].instruction, content.features[0].geometry.coordinates.map((i) => [i[1], i[0]])];
 }
 
 type Order = {
@@ -99,6 +106,7 @@ async function getOrders(): Promise<Array<Order>> {
 
 type MainState = {
     startPosition: [number, number],
+    nextRoutingStep: [string, number],
     target: [number, number],
     path: Array<[number, number]>,
     markers: Array<[number, number]>,
@@ -110,6 +118,7 @@ class Main extends React.Component<{}, MainState> {
         super(props);
         this.state = {
             startPosition: [49.00225, 12.10006],
+            nextRoutingStep: ["Start", 0],
             target: [48.64154, 10.42841],
             path: [],
             markers: [],
@@ -117,23 +126,33 @@ class Main extends React.Component<{}, MainState> {
         };
         getOrders().then((orders) => {
             console.log(`Got ${orders.length} orders: ${orders}`);
-            this.setState({orders: orders});
-            this.setState({markers: orders.map(o => o.waypoint)});
+            this.setState({orders: orders, markers: orders.map(o => o.waypoint)});
             let previousWaypoint = this.state.startPosition;
             const segmentPromises = [];
             for (const waypoint of orders.map(o => o.waypoint)) {
                 segmentPromises.push(getRoute(previousWaypoint, waypoint));
                 previousWaypoint = waypoint;
             }
-            Promise.all(segmentPromises).then((segmentList: Awaited<Array<Array<[number, number]>>>) => {
+            Promise.all(segmentPromises).then((segmentList: Awaited<Array<[number, string, Array<[number, number]>]>>) => {
                 console.log("segment list:", segmentList);
-                this.setState({path: segmentList.flat(1)});
+                this.setState({path: segmentList.map((segment) => segment[2]).flat(1)});
+                if (segmentList.length > 0) {
+                    console.log(segmentList[0]);
+                    this.setState({nextRoutingStep: [segmentList[0][1], segmentList[0][0]]});
+                }
             });
         });
     }
 
     render() {
         return <div id={"main"}>
+            <div className={"floating"}>
+                <span>
+                    <img src={"src/assets/" + turnIconMapping[this.state.nextRoutingStep[1]]}  alt={turnIconMapping[this.state.nextRoutingStep[1]]}/>
+                    <br/>
+                    {this.state.nextRoutingStep[0]}
+                </span>
+            </div>
             <MapContainer center={this.state.startPosition} zoom={13} scrollWheelZoom={true} className={"upper"}>
                 <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
