@@ -23,6 +23,8 @@ impl Modify for CookieSecurity {
 #[openapi(
     paths(
         handler::search::post_search,
+        handler::product::create_product,
+        handler::product::get_product,
         handler::product::get_product_images,
         handler::auth::login,
         handler::auth::logout,
@@ -32,6 +34,7 @@ impl Modify for CookieSecurity {
         handler::ApiErrorResponse,
         handler::search::SearchOutput,
         handler::search::SearchResult,
+        handler::product::ProductSchema,
         handler::product::ProductImages,
         handler::auth::LoginRequest,
     )),

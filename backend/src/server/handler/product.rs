@@ -11,7 +11,7 @@ use uuid::Uuid;
 
 use super::ApiResult;
 use crate::models::product::{Product, ProductInsert};
-use crate::server::handler::PathUuid;
+use crate::server::handler::{ApiError, PathUuid};
 
 #[derive(Deserialize, ToSchema)]
 pub struct PostProductRequest {
@@ -25,21 +25,76 @@ pub struct PostProductRequest {
 }
 
 #[derive(Serialize, ToSchema)]
+pub struct ProductSchema {
+    pub uuid: Uuid,
+    pub shop: Uuid,
+    pub ean_code: Option<String>,
+    pub name: String,
+    pub quantity: Option<String>,
+    pub description: Option<String>,
+    pub image: ImageState,
+    pub main_category: String,
+}
+
+#[derive(Serialize, ToSchema)]
+pub enum ImageState {
+    Untried,
+    Found(String),
+    NotFound,
+}
+
+#[utoipa::path(
+    tag = "Product",
+    context_path = "/api/v1",
+    responses(
+        (status = 200, description = "Product", body = ProductSchema),
+        (status = 400, description = "Client error", body = ApiErrorResponse),
+        (status = 500, description = "Server error", body = ApiErrorResponse)
+    ),
+    params(PathUuid),
+    security(("api_key" = []))
+)]
+#[get("/product/{uuid}")]
+pub async fn get_product(
+    db: Data<Database>,
+    path: Path<PathUuid>,
+) -> ApiResult<Json<ProductSchema>> {
+    query!(db.as_ref(), Product)
+        .condition(Product::F.uuid.equals(path.uuid.as_ref()))
+        .optional()
+        .await?
+        .map(Into::into)
+        .map(Json)
+        .ok_or(ApiError::NotFound)
+}
+
+#[derive(Serialize, ToSchema)]
 pub struct ProductImages {
     // only a single image for now
     pub image: Option<String>,
 }
 
+#[utoipa::path(
+    tag = "Product",
+    context_path = "/api/v1",
+    request_body = PostProductRequest,
+    responses(
+        (status = 200, description = "Created product", body = ProductSchema),
+        (status = 400, description = "Client error", body = ApiErrorResponse),
+        (status = 500, description = "Server error", body = ApiErrorResponse)
+    ),
+    security(("api_key" = []))
+)]
 #[post("product")]
-pub async fn post_product(
+pub async fn create_product(
     input_json: Json<PostProductRequest>,
     db: Data<Database>,
-) -> ApiResult<Json<Product>> {
+) -> ApiResult<Json<ProductSchema>> {
     let input = input_json.into_inner();
     let product = insert!(db.get_ref(), Product)
         .single(&ProductInsert {
             uuid: Uuid::new_v4(),
-            shop: Some(ForeignModelByField::Key(input.shop)),
+            shop: ForeignModelByField::Key(input.shop),
             ean_code: input.ean_code,
             quantity: input.quantity,
             description: input.description,
@@ -48,7 +103,7 @@ pub async fn post_product(
             name: input.name,
         })
         .await?;
-    Ok(Json(product))
+    Ok(Json(product.into()))
 }
 
 #[utoipa::path(
@@ -66,34 +121,37 @@ pub async fn post_product(
 pub async fn get_product_images(
     path: Path<PathUuid>,
     db: Data<Database>,
-) -> ApiResult<Json<ProductImages>> {
-    let product: Result<(Option<String>, Option<String>), rorm::Error> =
-        query!(db.as_ref(), (Product::F.ean_code, Product::F.image))
-            .condition(Product::F.uuid.equals(path.uuid.as_ref()))
-            .one()
-            .await;
+) -> ApiResult<Json<ImageState>> {
+    let (ean_code, image, requested) = query!(
+        db.as_ref(),
+        (
+            Product::F.ean_code,
+            Product::F.image,
+            Product::F.image_requested
+        )
+    )
+    .condition(Product::F.uuid.equals(path.uuid.as_ref()))
+    .one()
+    .await?;
 
-    match product {
-        Ok((ean_code, image)) => {
-            if image.is_some() {
-                return Ok(Json(ProductImages { image }));
-            } else if ean_code.is_some() {
-                let img = download_ean_image(ean_code.unwrap()).await;
-                if img.is_some() {
-                    update!(db.as_ref(), Product)
-                        .set(Product::F.image, img.as_ref())
-                        .condition(Product::F.uuid.equals(path.uuid.as_ref()))
-                        .await?;
-                    return Ok(Json(ProductImages { image: img }));
-                } else {
-                    return Ok(Json(ProductImages { image: None }));
-                }
-            } else {
-                return Ok(Json(ProductImages { image: None }));
-            }
+    let state = if let Some(image) = image {
+        ImageState::Found(image)
+    } else if requested || ean_code.is_none() {
+        ImageState::NotFound
+    } else {
+        if let Some(image) = download_ean_image(ean_code.expect("Checked in other if branch")).await
+        {
+            update!(db.as_ref(), Product)
+                .set(Product::F.image, &image)
+                .set(Product::F.image_requested, true)
+                .condition(Product::F.uuid.equals(path.uuid.as_ref()))
+                .await?;
+            ImageState::Found(image)
+        } else {
+            ImageState::NotFound
         }
-        Err(_) => Ok(Json(ProductImages { image: None })),
-    }
+    };
+    Ok(Json(state))
 }
 
 async fn download_ean_image(ean: String) -> Option<String> {
@@ -132,4 +190,37 @@ async fn download_ean_image(ean: String) -> Option<String> {
     std::io::copy(&mut content, &mut out).ok()?;
 
     Some(format!("image_cache/{ean}.jpg"))
+}
+
+impl From<Product> for ProductSchema {
+    fn from(value: Product) -> Self {
+        let Product {
+            uuid,
+            shop,
+            ean_code,
+            name,
+            quantity,
+            description,
+            image,
+            image_requested,
+            main_category,
+            created_at: _,
+        } = value;
+        ProductSchema {
+            uuid,
+            ean_code,
+            name,
+            quantity,
+            description,
+            image: if let Some(image) = image {
+                ImageState::Found(image)
+            } else if image_requested {
+                ImageState::NotFound
+            } else {
+                ImageState::Untried
+            },
+            main_category,
+            shop: *shop.key(),
+        }
+    }
 }

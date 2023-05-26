@@ -1,4 +1,3 @@
-use actix_files::Files;
 use actix_toolbox::tb_middleware::{
     setup_logging_mw, DBSessionStore, LoggingMiddlewareConfig, PersistentSession, SessionMiddleware,
 };
@@ -14,7 +13,7 @@ use rorm::Database;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
-use self::handler::product::{get_product_images, post_product};
+use self::handler::product::{create_product, get_product_images};
 use self::handler::search::post_search;
 use self::handler::shop::post_shop;
 use crate::config::Config;
@@ -56,11 +55,10 @@ pub(crate) async fn start_server(db: Database, config: &Config) -> Result<(), St
             .service(
                 scope("/api/v1")
                     .service(post_search)
-                    .service(post_product)
+                    .service(create_product)
                     .service(get_product_images)
-                    .service(post_shop)
+                    .service(post_shop),
             )
-        //.service(Files::new("/image_cache", "image_cache"))
     })
     .bind((
         config.server.listen_address.as_str(),
