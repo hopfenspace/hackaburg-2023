@@ -1,7 +1,8 @@
 use rorm::{DbEnum, Model, Patch};
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-#[derive(DbEnum)]
+#[derive(DbEnum, Deserialize, Serialize)]
 pub enum ShopCategory {
     Groceries,
     DrugStore,
@@ -9,7 +10,7 @@ pub enum ShopCategory {
 }
 
 /// The definition of a user
-#[derive(Model)]
+#[derive(Model, Serialize)]
 pub struct Shop {
     /// Primary key of the shop, a uuid v4
     #[rorm(primary_key)]
@@ -26,6 +27,16 @@ pub struct Shop {
     /// Shop category
     pub category: ShopCategory,
 
+    /// Human understandable address
+    #[rorm(max_length = 255)]
+    pub address: String,
+
+    /// Shop address' latitude
+    pub lat: f64,
+
+    /// Shop address' longitude
+    pub lng: f64,
+
     /// Creation time of the user
     #[rorm(auto_create_time)]
     pub created_at: chrono::NaiveDateTime,
@@ -33,9 +44,12 @@ pub struct Shop {
 
 #[derive(Patch)]
 #[rorm(model = "Shop")]
-pub(crate) struct ShopInsert {
-    pub(crate) uuid: Uuid,
-    pub(crate) name: String,
-    pub(crate) description: String,
-    pub(crate) category: ShopCategory,
+pub struct ShopInsert {
+    pub uuid: Uuid,
+    pub name: String,
+    pub description: String,
+    pub category: ShopCategory,
+    pub address: String,
+    pub lat: f64,
+    pub lng: f64,
 }

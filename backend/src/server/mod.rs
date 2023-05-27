@@ -1,4 +1,3 @@
-use actix_files::Files;
 use actix_toolbox::tb_middleware::{
     setup_logging_mw, DBSessionStore, LoggingMiddlewareConfig, PersistentSession, SessionMiddleware,
 };
@@ -14,9 +13,12 @@ use rorm::Database;
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
-use self::handler::product::{get_product_images, post_product};
-use self::handler::search::post_search;
 use crate::config::Config;
+use crate::server::handler::cart::{get_cart, put_cart};
+use crate::server::handler::driver::get_waypoints;
+use crate::server::handler::product::{create_product, get_product, get_product_images};
+use crate::server::handler::search::post_search;
+use crate::server::handler::shop::create_shop;
 use crate::server::handler::{login, logout};
 use crate::server::middleware::{handle_not_found, json_extractor_error};
 use crate::server::swagger::ApiDoc;
@@ -55,10 +57,15 @@ pub(crate) async fn start_server(db: Database, config: &Config) -> Result<(), St
             .service(
                 scope("/api/v1")
                     .service(post_search)
-                    .service(post_product)
-                    .service(get_product_images),
+                    .service(create_product)
+                    .service(get_product)
+                    .service(get_product_images)
+                    .service(create_shop)
+                    .service(get_cart)
+                    .service(put_cart)
+                    .service(get_waypoints)
+                    .service(create_shop),
             )
-            .service(Files::new("/image_cache", "image_cache"))
     })
     .bind((
         config.server.listen_address.as_str(),

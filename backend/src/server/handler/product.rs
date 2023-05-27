@@ -1,8 +1,9 @@
 use std::fs::File;
-use std::io::Write;
+use std::io::Cursor;
 
-use actix_web::web::{Data, Json, Query};
+use actix_web::web::{Data, Json, Path};
 use actix_web::{get, post};
+use rorm::fields::ForeignModelByField;
 use rorm::{insert, query, update, Database, Model};
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
@@ -10,16 +11,68 @@ use uuid::Uuid;
 
 use super::ApiResult;
 use crate::models::product::{Product, ProductInsert};
-use crate::server::handler::ApiError;
+use crate::server::handler::{ApiError, PathUuid};
 
 #[derive(Deserialize, ToSchema)]
-pub struct PostProductRequest {
+pub struct CreateProductRequest {
     pub ean_code: Option<String>,
     pub name: String,
     pub quantity: Option<String>,
     pub description: Option<String>,
     pub image: Option<String>,
     pub main_category: String,
+    pub shop: Uuid,
+}
+
+#[derive(Serialize, ToSchema)]
+pub struct ProductSchema {
+    pub uuid: Uuid,
+    pub shop: Uuid,
+    pub ean_code: Option<String>,
+    pub name: String,
+    pub quantity: Option<String>,
+    pub description: Option<String>,
+    pub image_state: ImageState,
+    pub image: Option<String>,
+    pub main_category: String,
+}
+
+#[derive(Serialize, ToSchema)]
+pub enum ImageState {
+    Untried,
+    Found,
+    NotFound,
+}
+
+#[derive(Serialize, ToSchema)]
+pub struct ImageResult {
+    pub image_state: ImageState,
+    pub image: Option<String>,
+}
+
+#[utoipa::path(
+    tag = "Product",
+    context_path = "/api/v1",
+    responses(
+        (status = 200, description = "Product", body = ProductSchema),
+        (status = 400, description = "Client error", body = ApiErrorResponse),
+        (status = 500, description = "Server error", body = ApiErrorResponse)
+    ),
+    params(PathUuid),
+    security(("api_key" = []))
+)]
+#[get("/product/{uuid}")]
+pub async fn get_product(
+    db: Data<Database>,
+    path: Path<PathUuid>,
+) -> ApiResult<Json<ProductSchema>> {
+    query!(db.as_ref(), Product)
+        .condition(Product::F.uuid.equals(path.uuid.as_ref()))
+        .optional()
+        .await?
+        .map(Into::into)
+        .map(Json)
+        .ok_or(ApiError::NotFound)
 }
 
 #[derive(Serialize, ToSchema)]
@@ -28,20 +81,27 @@ pub struct ProductImages {
     pub image: Option<String>,
 }
 
-#[derive(Deserialize)]
-pub struct ProductImagesQuery {
-    pub uuid: String,
-}
-
-#[post("/api/product")]
-pub async fn post_product(
-    input_json: Json<PostProductRequest>,
+#[utoipa::path(
+    tag = "Product",
+    context_path = "/api/v1",
+    request_body = CreateProductRequest,
+    responses(
+        (status = 200, description = "Created product", body = ProductSchema),
+        (status = 400, description = "Client error", body = ApiErrorResponse),
+        (status = 500, description = "Server error", body = ApiErrorResponse)
+    ),
+    security(("api_key" = []))
+)]
+#[post("/product")]
+pub async fn create_product(
+    input_json: Json<CreateProductRequest>,
     db: Data<Database>,
-) -> ApiResult<Json<Product>> {
+) -> ApiResult<Json<ProductSchema>> {
     let input = input_json.into_inner();
     let product = insert!(db.get_ref(), Product)
         .single(&ProductInsert {
             uuid: Uuid::new_v4(),
+            shop: ForeignModelByField::Key(input.shop),
             ean_code: input.ean_code,
             quantity: input.quantity,
             description: input.description,
@@ -50,52 +110,67 @@ pub async fn post_product(
             name: input.name,
         })
         .await?;
-    Ok(Json(product))
+    Ok(Json(product.into()))
 }
 
 #[utoipa::path(
-    tag = "Search",
+    tag = "Product",
+    context_path = "/api/v1",
     responses(
-        (status = 200, description = "Product image", body = ProductImages),
+        (status = 200, description = "Product image", body = ImageResult),
         (status = 400, description = "Client error", body = ApiErrorResponse),
         (status = 500, description = "Server error", body = ApiErrorResponse)
     ),
-    request_body = ProductImagesQuery,
+    params(PathUuid),
     security(("api_key" = []))
 )]
-#[get("/api/images")]
+#[get("/product/{uuid}/image")]
 pub async fn get_product_images(
-    req: Query<ProductImagesQuery>,
+    path: Path<PathUuid>,
     db: Data<Database>,
-) -> ApiResult<Json<ProductImages>> {
-    let uuid: Uuid = Uuid::parse_str(req.uuid.as_str()).map_err(|_| ApiError::MalformedInput)?;
-    let product: Result<(Option<String>, Option<String>), rorm::Error> =
-        query!(db.as_ref(), (Product::F.ean_code, Product::F.image))
-            .condition(Product::F.uuid.equals(uuid.as_ref()))
-            .one()
-            .await;
+) -> ApiResult<Json<ImageResult>> {
+    let (ean_code, image, requested) = query!(
+        db.as_ref(),
+        (
+            Product::F.ean_code,
+            Product::F.image,
+            Product::F.image_requested
+        )
+    )
+    .condition(Product::F.uuid.equals(path.uuid.as_ref()))
+    .one()
+    .await?;
 
-    match product {
-        Ok((ean_code, image)) => {
-            if image.is_some() {
-                return Ok(Json(ProductImages { image }));
-            } else if ean_code.is_some() {
-                let img = download_ean_image(ean_code.unwrap()).await;
-                if img.is_some() {
-                    update!(db.as_ref(), Product)
-                        .set(Product::F.image, img.as_ref())
-                        .condition(Product::F.uuid.equals(uuid.as_ref()))
-                        .await?;
-                    return Ok(Json(ProductImages { image: img }));
-                } else {
-                    return Ok(Json(ProductImages { image: None }));
-                }
-            } else {
-                return Ok(Json(ProductImages { image: None }));
+    let state = if let Some(image) = image {
+        ImageResult {
+            image_state: ImageState::Found,
+            image: Some(image),
+        }
+    } else if requested || ean_code.is_none() {
+        ImageResult {
+            image_state: ImageState::NotFound,
+            image: None,
+        }
+    } else {
+        if let Some(image) = download_ean_image(ean_code.expect("Checked in other if branch")).await
+        {
+            update!(db.as_ref(), Product)
+                .set(Product::F.image, &image)
+                .set(Product::F.image_requested, true)
+                .condition(Product::F.uuid.equals(path.uuid.as_ref()))
+                .await?;
+            ImageResult {
+                image_state: ImageState::Found,
+                image: Some(image),
+            }
+        } else {
+            ImageResult {
+                image_state: ImageState::NotFound,
+                image: None
             }
         }
-        Err(_) => Ok(Json(ProductImages { image: None })),
-    }
+    };
+    Ok(Json(state))
 }
 
 async fn download_ean_image(ean: String) -> Option<String> {
@@ -106,6 +181,12 @@ async fn download_ean_image(ean: String) -> Option<String> {
     #[derive(Deserialize)]
     struct ProductRoot {
         product: Product,
+    }
+
+    let file_path = format!("image_cache/{ean}.jpg");
+
+    if std::path::Path::new(&file_path).exists() {
+        return Some(file_path);
     }
 
     let client = reqwest::Client::builder()
@@ -126,11 +207,46 @@ async fn download_ean_image(ean: String) -> Option<String> {
         .send()
         .await
         .ok()?
-        .text()
+        .bytes()
         .await
         .ok()?;
-    let mut out = File::create(format!("image_cache/{ean}.jpg")).expect("failed to create file");
-    out.write_all(image_response_string.as_bytes()).ok()?;
+    let mut out = File::create(&file_path).expect("failed to create file");
+    let mut content = Cursor::new(image_response_string);
+    std::io::copy(&mut content, &mut out).ok()?;
 
-    Some(format!("image_cache/{ean}.jpg"))
+    Some(file_path)
+}
+
+impl From<Product> for ProductSchema {
+    fn from(value: Product) -> Self {
+        let Product {
+            uuid,
+            shop,
+            ean_code,
+            name,
+            quantity,
+            description,
+            image,
+            image_requested,
+            main_category,
+            created_at: _,
+        } = value;
+        ProductSchema {
+            uuid,
+            ean_code,
+            name,
+            quantity,
+            description,
+            image_state: if image.is_some() {
+                ImageState::Found
+            } else if image_requested {
+                ImageState::NotFound
+            } else {
+                ImageState::Untried
+            },
+            image,
+            main_category,
+            shop: *shop.key(),
+        }
+    }
 }

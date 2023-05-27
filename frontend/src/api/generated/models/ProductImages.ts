@@ -16,42 +16,41 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface SearchInput
+ * @interface ProductImages
  */
-export interface SearchInput {
+export interface ProductImages {
     /**
      * 
      * @type {string}
-     * @memberof SearchInput
+     * @memberof ProductImages
      */
-    q: string;
+    image?: string | null;
 }
 
 /**
- * Check if a given object implements the SearchInput interface.
+ * Check if a given object implements the ProductImages interface.
  */
-export function instanceOfSearchInput(value: object): boolean {
+export function instanceOfProductImages(value: object): boolean {
     let isInstance = true;
-    isInstance = isInstance && "q" in value;
 
     return isInstance;
 }
 
-export function SearchInputFromJSON(json: any): SearchInput {
-    return SearchInputFromJSONTyped(json, false);
+export function ProductImagesFromJSON(json: any): ProductImages {
+    return ProductImagesFromJSONTyped(json, false);
 }
 
-export function SearchInputFromJSONTyped(json: any, ignoreDiscriminator: boolean): SearchInput {
+export function ProductImagesFromJSONTyped(json: any, ignoreDiscriminator: boolean): ProductImages {
     if ((json === undefined) || (json === null)) {
         return json;
     }
     return {
         
-        'q': json['q'],
+        'image': !exists(json, 'image') ? undefined : json['image'],
     };
 }
 
-export function SearchInputToJSON(value?: SearchInput | null): any {
+export function ProductImagesToJSON(value?: ProductImages | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -60,7 +59,7 @@ export function SearchInputToJSON(value?: SearchInput | null): any {
     }
     return {
         
-        'q': value.q,
+        'image': value.image,
     };
 }
 

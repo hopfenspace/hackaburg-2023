@@ -1,0 +1,83 @@
+.cart {
+	width: 80vw;
+	margin: 2em auto;
+}
+
+.cart > div {
+	margin: 1.2em 0;
+	border-radius: 1.5em;
+	box-shadow: 0 0 0.5em var(--level-1), inset 0 0 4em #ffffff10;
+	padding: 1em;
+	background-color: var(--level-1);
+	box-shadow: 0 0 0.5em var(--level-1), inset 0 0 4em #ffffff10;
+	color: white;
+}
+
+.cart > .item {
+	display: grid;
+	grid-template-columns: 180px 1fr auto;
+	grid-template-rows: auto auto auto;
+	align-items: center;
+}
+
+.cart > .item > img {
+	max-height: 120px;
+	grid-column: 1;
+	grid-row: 1 / span 3;
+	border-radius: 0.6em;
+	margin-right: 1em;
+	max-width: 180px;
+	align-self: center;
+	justify-self: center;
+}
+
+.cart > .item > .name {
+	font-weight: bold;
+}
+
+.cart > .item > .quantity {
+	grid-column: 2;
+	grid-row: 2;
+}
+
+.cart > .item > .amount {
+	grid-column: 3;
+	grid-row: 1 / span 2;
+	display: flex;
+}
+
+.cart > .item > .price {
+	grid-column: 2;
+	grid-row: 3;
+}
+
+.cart > .item > .total {
+	grid-column: 3;
+	grid-row: 3;
+}
+
+.cart > .item > .amount > input {
+	width: 50px;
+	flex-grow: 1;
+}
+
+.cart > .submit {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.cart > .submit > .total {
+	flex-grow: 1;
+	font-weight: bold;
+}
+
+.cart > .submit > button {
+	appearance: none;
+	border: none;
+	border-radius: 0.6em;
+	padding: 1em;
+	background-color: white;
+	color: var(--primary);
+	font-weight: bold;
+}
