@@ -8,6 +8,7 @@ import { ImageState, SearchResult } from "../api/generated";
 import INTRO_SVG from "../assets/intro-shopping-bag.svg";
 import INTRO_HEART_SVG from "../assets/intro-heart.svg";
 import NOT_FOUND_SVG from "../assets/products-not-found.svg";
+import { renderEuro } from "./cart";
 
 type HomeProps = {};
 export default function Home(props: HomeProps) {
@@ -20,6 +21,7 @@ export default function Home(props: HomeProps) {
         </div>
     );
 }
+let lastTimer = 0;
 
 type SearchBarProps = {};
 const SearchBar = React.forwardRef(function SearchBar(
@@ -28,7 +30,40 @@ const SearchBar = React.forwardRef(function SearchBar(
 ) {
     const [search, setSearch] = React.useState("");
     const [results, setResults] = React.useState<null | Array<SearchResult>>(null);
-    let lastTimer = 0;
+    const [focusedProduct, setFocusedProduct] = React.useState<null | { uuid: string, name: string, quantity: string, description: string, image: string, price: number }>(null);
+
+    function viewProduct(
+        uuid: string,
+        name: string,
+        quantity: string,
+        description: string,
+        image: string
+    ): any {
+        setFocusedProduct({
+            uuid,
+            name,
+            quantity,
+            description,
+            image,
+            price: 2.99
+        });
+    }
+
+    function addToCart()
+    {
+        if (!focusedProduct)
+            return;
+        let products = JSON.parse(localStorage.getItem("shoppingcart") || "[]");
+        products.push({
+            img: focusedProduct.image,
+            name: focusedProduct.name,
+            quantity: focusedProduct.quantity,
+            price: focusedProduct.price,
+            amount: 1
+        });
+        localStorage.setItem("shoppingcart", JSON.stringify(products));
+        setFocusedProduct(null);
+    }
 
     return (
         <>
@@ -42,7 +77,7 @@ const SearchBar = React.forwardRef(function SearchBar(
                     clearTimeout(lastTimer);
                     lastTimer = setTimeout(() => {
                         Api.search(newValue).then(handleApiError(({ results }) => setResults(results)));
-                    }, 300);
+                    }, 600);
                 }}
                 className={"search-bar"}
             />
@@ -53,7 +88,7 @@ const SearchBar = React.forwardRef(function SearchBar(
                         ? (
                             <div className={"search-results"}>
                                 {results.map(({ uuid, name, quantity, description, image, mainCategory }) => (
-                                    <div>
+                                    <div onClick={() => viewProduct(uuid, name, quantity, description, image)}>
                                         {image
                                             ? <img src={image} alt="" />
                                             : <LazyLoadImage uuid={uuid} />
@@ -104,6 +139,19 @@ const SearchBar = React.forwardRef(function SearchBar(
                         </div>
                     )
             }
+
+            <div className={"product-view" + (focusedProduct ? "" : " hidden")}>
+                <img src={focusedProduct?.image} alt="" />
+                <div className="name">{focusedProduct?.name}</div>
+                <div className="description">{focusedProduct?.description}</div>
+                <div className="infos">
+                    <div className="price">{renderEuro(focusedProduct?.price || 0)}</div>
+                    {focusedProduct?.quantity?.length ? (<div className="quantity"> / {focusedProduct?.quantity}</div>) : null}
+                </div>
+                <div className="actions">
+                    <button onClick={() => addToCart()}>In den Einkaufswagen</button>
+                </div>
+            </div>
         </>
     );
 });
