@@ -442,3 +442,21 @@ OnUpdate = "Cascade"
 
 [[Migration.Operations.Field.Annotations]]
 Type = "not_null"
+
+[[Migration.Operations]]
+Type = "RawSQL"
+SQLite = ""
+MySQL = ""
+Postgres = """ALTER TABLE product
+    ADD COLUMN textsearchable_index_col tsvector
+        GENERATED ALWAYS AS (
+            setweight(to_tsvector('german', coalesce(name, '')), 'A') ||
+            setweight(to_tsvector('german', coalesce(main_category, '')), 'B') ||
+            setweight(to_tsvector('german', coalesce(description, '')), 'D')
+        ) STORED;"""
+
+[[Migration.Operations]]
+Type = "RawSQL"
+SQLite = ""
+MySQL = ""
+Postgres = "CREATE INDEX textsearch_idx ON product USING GIN (textsearchable_index_col);"
