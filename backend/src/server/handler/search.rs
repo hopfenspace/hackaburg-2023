@@ -48,8 +48,8 @@ pub async fn post_search(
 
     let rows = db.raw_sql("SELECT uuid, name, quantity, description, image, main_category, ts_rank_cd(textsearchable_index_col, query, 32 /* rank/(rank+1) */) AS rank
         FROM product, websearch_to_tsquery('german', $1) query
-        WHERE query @@ textsearchable_index_col
-        ORDER BY COUNT(name) OVER(PARTITION BY main_category) DESC, rank DESC
+        WHERE query @@ textsearchable_index_col OR (octet_length($1) >= 3 AND name ILIKE '%' || $1 || '%')
+        ORDER BY name ILIKE '%' || $1 || '%' DESC, COUNT(name) OVER(PARTITION BY main_category) DESC, rank DESC
         LIMIT 1000;", Some(binds.as_slice()), None)
         .await?;
 
