@@ -1,5 +1,8 @@
+use rorm::fields::ForeignModel;
 use rorm::{Model, Patch};
 use uuid::Uuid;
+
+use crate::models::product::Product;
 
 /// The definition of a user
 #[derive(Model)]
@@ -36,4 +39,28 @@ pub(crate) struct UserInsert {
     pub(crate) display_name: String,
     pub(crate) password_hash: String,
     pub(crate) last_login: Option<chrono::NaiveDateTime>,
+}
+
+#[derive(Model)]
+pub struct CartEntry {
+    #[rorm(primary_key)]
+    pub id: i64,
+
+    pub index: i64,
+    pub amount: i64,
+
+    #[rorm(on_delete = "Cascade", on_update = "Cascade")]
+    pub user: ForeignModel<User>,
+
+    #[rorm(on_delete = "Cascade", on_update = "Cascade")]
+    pub product: ForeignModel<Product>,
+}
+
+#[derive(Patch)]
+#[rorm(model = "CartEntry")]
+pub struct CartEntryInsert {
+    pub index: i64,
+    pub amount: i64,
+    pub user: ForeignModel<User>,
+    pub product: ForeignModel<Product>,
 }

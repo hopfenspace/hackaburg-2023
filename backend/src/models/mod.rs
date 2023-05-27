@@ -1,5 +1,6 @@
 pub use user::*;
 
-pub mod user;
-pub mod shop;
+pub mod driver;
 pub mod product;
+pub mod shop;
+pub mod user;

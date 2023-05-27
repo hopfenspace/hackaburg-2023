@@ -1,5 +1,5 @@
 [Migration]
-Hash = "12922562461934331190"
+Hash = "6104217008914916057"
 Initial = true
 Replaces = []
 
@@ -150,6 +150,31 @@ Value = [
 Type = "not_null"
 
 [[Migration.Operations.Fields]]
+Name = "address"
+Type = "varchar"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "max_length"
+Value = 255
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "not_null"
+
+[[Migration.Operations.Fields]]
+Name = "lat"
+Type = "double_number"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "not_null"
+
+[[Migration.Operations.Fields]]
+Name = "lng"
+Type = "double_number"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "not_null"
+
+[[Migration.Operations.Fields]]
 Name = "created_at"
 Type = "datetime"
 
@@ -226,6 +251,70 @@ Type = "not_null"
 
 [[Migration.Operations]]
 Type = "CreateModel"
+Name = "cartentry"
+
+[[Migration.Operations.Fields]]
+Name = "id"
+Type = "int64"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "primary_key"
+
+[[Migration.Operations.Fields]]
+Name = "index"
+Type = "int64"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "not_null"
+
+[[Migration.Operations.Fields]]
+Name = "amount"
+Type = "int64"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "not_null"
+
+[[Migration.Operations]]
+Type = "CreateModel"
+Name = "driver"
+
+[[Migration.Operations.Fields]]
+Name = "id"
+Type = "varbinary"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "primary_key"
+
+[[Migration.Operations]]
+Type = "CreateModel"
+Name = "routenode"
+
+[[Migration.Operations.Fields]]
+Name = "id"
+Type = "int64"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "auto_increment"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "primary_key"
+
+[[Migration.Operations.Fields]]
+Name = "index"
+Type = "int64"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "not_null"
+
+[[Migration.Operations.Fields]]
+Name = "arrival"
+Type = "datetime"
+
+[[Migration.Operations.Fields.Annotations]]
+Type = "not_null"
+
+[[Migration.Operations]]
+Type = "CreateModel"
 Name = "dbsession"
 
 [[Migration.Operations.Fields]]
@@ -256,6 +345,86 @@ Type = "not_null"
 
 [[Migration.Operations]]
 Type = "CreateField"
+Model = "cartentry"
+
+[Migration.Operations.Field]
+Name = "user"
+Type = "varbinary"
+
+[[Migration.Operations.Field.Annotations]]
+Type = "foreign_key"
+
+[Migration.Operations.Field.Annotations.Value]
+TableName = "user"
+ColumnName = "uuid"
+OnDelete = "Cascade"
+OnUpdate = "Cascade"
+
+[[Migration.Operations.Field.Annotations]]
+Type = "not_null"
+
+[[Migration.Operations]]
+Type = "CreateField"
+Model = "cartentry"
+
+[Migration.Operations.Field]
+Name = "product"
+Type = "varbinary"
+
+[[Migration.Operations.Field.Annotations]]
+Type = "foreign_key"
+
+[Migration.Operations.Field.Annotations.Value]
+TableName = "product"
+ColumnName = "uuid"
+OnDelete = "Cascade"
+OnUpdate = "Cascade"
+
+[[Migration.Operations.Field.Annotations]]
+Type = "not_null"
+
+[[Migration.Operations]]
+Type = "CreateField"
+Model = "routenode"
+
+[Migration.Operations.Field]
+Name = "driver"
+Type = "varbinary"
+
+[[Migration.Operations.Field.Annotations]]
+Type = "foreign_key"
+
+[Migration.Operations.Field.Annotations.Value]
+TableName = "driver"
+ColumnName = "id"
+OnDelete = "Restrict"
+OnUpdate = "Restrict"
+
+[[Migration.Operations.Field.Annotations]]
+Type = "not_null"
+
+[[Migration.Operations]]
+Type = "CreateField"
+Model = "routenode"
+
+[Migration.Operations.Field]
+Name = "shop"
+Type = "varbinary"
+
+[[Migration.Operations.Field.Annotations]]
+Type = "foreign_key"
+
+[Migration.Operations.Field.Annotations.Value]
+TableName = "shop"
+ColumnName = "uuid"
+OnDelete = "Restrict"
+OnUpdate = "Restrict"
+
+[[Migration.Operations.Field.Annotations]]
+Type = "not_null"
+
+[[Migration.Operations]]
+Type = "CreateField"
 Model = "product"
 
 [Migration.Operations.Field]
@@ -273,21 +442,3 @@ OnUpdate = "Cascade"
 
 [[Migration.Operations.Field.Annotations]]
 Type = "not_null"
-
-[[Migration.Operations]]
-Type = "RawSQL"
-SQLite = ""
-MySQL = ""
-Postgres = """ALTER TABLE product
-    ADD COLUMN textsearchable_index_col tsvector
-        GENERATED ALWAYS AS (
-            setweight(to_tsvector('german', coalesce(name, '')), 'A') ||
-            setweight(to_tsvector('german', coalesce(main_category, '')), 'B') ||
-            setweight(to_tsvector('german', coalesce(description, '')), 'D')
-        ) STORED;"""
-
-[[Migration.Operations]]
-Type = "RawSQL"
-SQLite = ""
-MySQL = ""
-Postgres = "CREATE INDEX textsearch_idx ON product USING GIN (textsearchable_index_col);"
